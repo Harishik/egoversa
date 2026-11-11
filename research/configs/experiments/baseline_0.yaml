@@ -1,0 +1,9 @@
+# Untuned student. Nothing is trained; this file exists so the baseline is a registered run like any other.
+name: baseline_0
+kind: evaluate
+track: permissive
+model_id: qwen3.5-0.8b-base          # id in research/configs/models.json
+dataset: research/data/egoversa-pilot
+splits: [test_iid, test_ood]
+purpose: "Establish what the small model can do before any spatial training."
+command: "npm run eval:models -- --dataset research/data/egoversa-pilot --model qwen3.5-0.8b-base"

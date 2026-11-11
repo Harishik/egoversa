@@ -1,0 +1,12 @@
+# Pure imitation: targets are the teacher's own answers on the SAME images and prompts as A (right or wrong).
+# sft_teacher/train.imitation.jsonl is produced by research/scripts/run_teacher.py.
+name: B_teacher
+kind: train
+track: research-nc
+dataset: research/data/egoversa-pilot
+train_files: [sft_teacher/train.imitation.jsonl]
+val_file: sft/val.jsonl                # validation is always scored against the oracle
+purpose: "Measure plain distillation, including the cost of propagating teacher errors."
+model: { hf_id: Qwen/Qwen3.5-0.8B }
+lora: { r: 16, alpha: 16, dropout: 0.0, finetune_vision: false, finetune_language: true }
+train: { epochs: 2, lr: 2.0e-4, batch_size: 4, grad_accum: 2, eval_every: 100, eval_examples: 96, early_stopping_patience: 4, seed: 3407 }

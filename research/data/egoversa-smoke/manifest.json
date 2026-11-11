@@ -1,0 +1,225 @@
+{
+  "format": "egoversa.dataset",
+  "version": 1,
+  "name": "egoversa-smoke",
+  "dataset_version": "0.2.0",
+  "engine": "egoversa-0.1.0",
+  "license_track": "permissive",
+  "config": {
+    "name": "egoversa-smoke",
+    "version": "0.2.0",
+    "baseSeed": "egv-smoke-1",
+    "imageWidth": 512,
+    "envs": [
+      "tabletop",
+      "room",
+      "workbench"
+    ],
+    "scenes": {
+      "test_iid": 2,
+      "test_ood": 2,
+      "val": 1,
+      "train": 3
+    },
+    "perViewPerTask": 1,
+    "toleranceScale": 1,
+    "license_track": "permissive"
+  },
+  "task_types": [
+    "lateral",
+    "depth",
+    "vertical",
+    "visibility",
+    "obs_lateral",
+    "obs_frontback",
+    "facing",
+    "abstain",
+    "mv_best_view",
+    "mv_camera_motion"
+  ],
+  "updated_at": "2026-11-11T03:11:19.518Z",
+  "splits": {
+    "test_iid": {
+      "samples": 95,
+      "scenes": 6,
+      "images": 12,
+      "by_task": {
+        "lateral": {
+          "left": 6,
+          "right": 6
+        },
+        "visibility": {
+          "visible": 6,
+          "occluded": 6
+        },
+        "depth": {
+          "farther": 6,
+          "closer": 6
+        },
+        "vertical": {
+          "above": 6,
+          "below": 6
+        },
+        "obs_lateral": {
+          "left": 6,
+          "right": 6
+        },
+        "obs_frontback": {
+          "front": 5,
+          "behind": 7
+        },
+        "facing": {
+          "toward": 4,
+          "away": 6
+        },
+        "mv_camera_motion": {
+          "left": 3,
+          "right": 3
+        },
+        "mv_best_view": {
+          "second": 2,
+          "first": 3
+        },
+        "abstain": {
+          "unknown": 2
+        }
+      }
+    },
+    "test_ood": {
+      "samples": 102,
+      "scenes": 6,
+      "images": 12,
+      "by_task": {
+        "obs_lateral": {
+          "left": 6,
+          "right": 6
+        },
+        "abstain": {
+          "unknown": 8
+        },
+        "visibility": {
+          "visible": 7,
+          "occluded": 5
+        },
+        "depth": {
+          "closer": 6,
+          "farther": 6
+        },
+        "lateral": {
+          "left": 6,
+          "right": 6
+        },
+        "vertical": {
+          "above": 6,
+          "below": 6
+        },
+        "obs_frontback": {
+          "behind": 6,
+          "front": 6
+        },
+        "facing": {
+          "away": 5,
+          "toward": 5
+        },
+        "mv_camera_motion": {
+          "left": 5,
+          "right": 1
+        },
+        "mv_best_view": {
+          "first": 3,
+          "second": 3
+        }
+      }
+    },
+    "val": {
+      "samples": 46,
+      "scenes": 3,
+      "images": 6,
+      "by_task": {
+        "vertical": {
+          "above": 4,
+          "below": 2
+        },
+        "depth": {
+          "farther": 3,
+          "closer": 3
+        },
+        "lateral": {
+          "left": 3,
+          "right": 3
+        },
+        "visibility": {
+          "visible": 3,
+          "occluded": 3
+        },
+        "obs_frontback": {
+          "behind": 4,
+          "front": 2
+        },
+        "obs_lateral": {
+          "right": 4,
+          "left": 2
+        },
+        "facing": {
+          "away": 2,
+          "toward": 2
+        },
+        "mv_best_view": {
+          "first": 2
+        },
+        "mv_camera_motion": {
+          "right": 3
+        },
+        "abstain": {
+          "unknown": 1
+        }
+      }
+    },
+    "train": {
+      "samples": 145,
+      "scenes": 9,
+      "images": 18,
+      "by_task": {
+        "vertical": {
+          "above": 9,
+          "below": 9
+        },
+        "obs_frontback": {
+          "behind": 8,
+          "front": 8
+        },
+        "depth": {
+          "farther": 9,
+          "closer": 9
+        },
+        "lateral": {
+          "right": 9,
+          "left": 9
+        },
+        "obs_lateral": {
+          "right": 8,
+          "left": 8
+        },
+        "visibility": {
+          "visible": 9,
+          "occluded": 9
+        },
+        "facing": {
+          "away": 5,
+          "toward": 9
+        },
+        "abstain": {
+          "unknown": 9
+        },
+        "mv_camera_motion": {
+          "left": 5,
+          "right": 4
+        },
+        "mv_best_view": {
+          "first": 5,
+          "second": 4
+        }
+      }
+    }
+  }
+}

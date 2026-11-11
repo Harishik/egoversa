@@ -1,0 +1,71 @@
+@import '@fontsource-variable/manrope';
+@import '@fontsource/instrument-serif/400.css';
+@import '@fontsource-variable/jetbrains-mono';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root { height: 100%; }
+  body {
+    @apply bg-night-950 text-ink font-sans antialiased;
+    font-feature-settings: 'ss01', 'cv11';
+    background-image:
+      radial-gradient(900px 500px at 12% -10%, rgba(124, 135, 255, 0.10), transparent 60%),
+      radial-gradient(700px 420px at 105% 110%, rgba(92, 225, 230, 0.06), transparent 60%);
+    background-attachment: fixed;
+  }
+  ::selection { background: rgba(124, 135, 255, 0.4); }
+  :focus-visible { outline: 2px solid #5CE1E6; outline-offset: 2px; border-radius: 6px; }
+  * { scrollbar-width: thin; scrollbar-color: #2A3368 transparent; }
+  .num { @apply font-mono tabular-nums; font-feature-settings: 'zero'; }
+}
+
+@layer components {
+  .panel { @apply rounded-2xl border border-night-700/80 bg-night-850/80 shadow-panel backdrop-blur; }
+  .hairline { @apply border-night-700/70; }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-night-600 bg-night-800 px-3 py-1.5 text-[13px] font-semibold text-ink transition-colors;
+  }
+  .btn:hover:not(:disabled) { @apply border-night-500 bg-night-700; }
+  .btn:disabled { @apply cursor-not-allowed opacity-45; }
+  .btn-primary { @apply border-indigo bg-indigo text-night-950; }
+  .btn-primary:hover:not(:disabled) { @apply border-[#98a1ff] bg-[#98a1ff]; }
+  .btn-ghost { @apply border-transparent bg-transparent text-muted; }
+  .btn-ghost:hover:not(:disabled) { @apply bg-night-800 text-ink; }
+  .field {
+    @apply w-full rounded-lg border border-night-600 bg-night-900 px-2.5 py-1.5 text-[13px] text-ink placeholder:text-dim;
+  }
+  .chip { @apply inline-flex items-center gap-1.5 rounded-full border border-night-600 bg-night-800/70 px-2.5 py-0.5 text-[12px] text-muted; }
+}
+
+/* Range input */
+input[type='range'].slider { -webkit-appearance: none; appearance: none; width: 100%; height: 18px; background: transparent; cursor: pointer; }
+input[type='range'].slider::-webkit-slider-runnable-track { height: 4px; border-radius: 4px; background: linear-gradient(to right, var(--fill, #7C87FF) var(--pct, 50%), #2A3368 var(--pct, 50%)); }
+input[type='range'].slider::-moz-range-track { height: 4px; border-radius: 4px; background: #2A3368; }
+input[type='range'].slider::-moz-range-progress { height: 4px; border-radius: 4px; background: var(--fill, #7C87FF); }
+input[type='range'].slider::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; margin-top: -5px; border-radius: 50%; background: #E9ECFF; border: 2px solid var(--fill, #7C87FF); box-shadow: 0 0 0 3px rgba(6, 8, 23, 0.9); }
+input[type='range'].slider::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: #E9ECFF; border: 2px solid var(--fill, #7C87FF); }
+
+/* Tooltip */
+.tip { position: relative; display: inline-flex; }
+.tip > [role='tooltip'] {
+  position: absolute; z-index: 60; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%) translateY(4px);
+  width: max-content; max-width: 260px; padding: 8px 10px; border-radius: 10px;
+  background: #1C2450; border: 1px solid #3A4585; color: #E9ECFF; font-size: 12px; line-height: 1.45; font-weight: 500; text-align: left;
+  opacity: 0; pointer-events: none; transition: opacity 120ms, transform 120ms; box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.8);
+}
+.tip[data-side='bottom'] > [role='tooltip'] { bottom: auto; top: calc(100% + 8px); }
+.tip[data-align='end'] > [role='tooltip'] { left: auto; right: 0; transform: translateY(4px); }
+.tip[data-align='start'] > [role='tooltip'] { left: 0; transform: translateY(4px); }
+.tip:hover > [role='tooltip'], .tip:focus-within > [role='tooltip'] { opacity: 1; transform: translateX(-50%); }
+.tip[data-align='end']:hover > [role='tooltip'], .tip[data-align='end']:focus-within > [role='tooltip'],
+.tip[data-align='start']:hover > [role='tooltip'], .tip[data-align='start']:focus-within > [role='tooltip'] { transform: none; }
+
+.scene-label { pointer-events: none; white-space: nowrap; font: 600 11px/1 'Manrope Variable', sans-serif; padding: 4px 7px; border-radius: 999px; background: rgba(10, 14, 34, 0.82); border: 1px solid #2A3368; color: #E9ECFF; }
+.axis-label { pointer-events: none; white-space: nowrap; font: 600 11px/1 'JetBrains Mono Variable', monospace; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

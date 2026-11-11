@@ -1,0 +1,11 @@
+# Research environment. Intel macOS needs conda-forge for PyTorch >= 2.6 (PyPI stops at 2.2.2 for osx-64).
+#   conda env create -p research/.conda -f research/environment.yml
+name: egoversa-research
+channels: [conda-forge]
+dependencies:
+  - python=3.11
+  - pytorch=2.14.1
+  - torchvision
+  - pip
+  - pip:
+      - -r requirements.txt

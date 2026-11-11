@@ -1,0 +1,227 @@
+{
+  "format": "egoversa.dataset",
+  "version": 1,
+  "name": "egoversa-pilot",
+  "dataset_version": "0.2.0",
+  "engine": "egoversa-0.1.0",
+  "license_track": "permissive",
+  "config": {
+    "name": "egoversa-pilot",
+    "version": "0.2.0",
+    "baseSeed": "egv-pilot-1",
+    "imageWidth": 512,
+    "envs": [
+      "tabletop",
+      "room",
+      "workbench"
+    ],
+    "scenes": {
+      "test_iid": 12,
+      "test_ood": 12,
+      "val": 8,
+      "train": 110
+    },
+    "perViewPerTask": 1,
+    "toleranceScale": 1,
+    "license_track": "permissive"
+  },
+  "task_types": [
+    "lateral",
+    "depth",
+    "vertical",
+    "visibility",
+    "obs_lateral",
+    "obs_frontback",
+    "facing",
+    "abstain",
+    "mv_best_view",
+    "mv_camera_motion"
+  ],
+  "updated_at": "2026-11-11T03:12:22.248Z",
+  "splits": {
+    "test_iid": {
+      "samples": 595,
+      "scenes": 36,
+      "images": 72,
+      "by_task": {
+        "obs_frontback": {
+          "front": 37,
+          "behind": 35
+        },
+        "abstain": {
+          "unknown": 34
+        },
+        "depth": {
+          "closer": 36,
+          "farther": 36
+        },
+        "vertical": {
+          "below": 36,
+          "above": 36
+        },
+        "facing": {
+          "toward": 31,
+          "away": 28
+        },
+        "lateral": {
+          "right": 36,
+          "left": 36
+        },
+        "obs_lateral": {
+          "right": 37,
+          "left": 35
+        },
+        "visibility": {
+          "visible": 38,
+          "occluded": 34
+        },
+        "mv_best_view": {
+          "second": 16,
+          "first": 18
+        },
+        "mv_camera_motion": {
+          "right": 19,
+          "left": 17
+        }
+      }
+    },
+    "test_ood": {
+      "samples": 568,
+      "scenes": 36,
+      "images": 72,
+      "by_task": {
+        "obs_lateral": {
+          "right": 31,
+          "left": 32
+        },
+        "visibility": {
+          "visible": 37,
+          "occluded": 35
+        },
+        "facing": {
+          "away": 27,
+          "toward": 23
+        },
+        "lateral": {
+          "right": 36,
+          "left": 36
+        },
+        "depth": {
+          "closer": 36,
+          "farther": 36
+        },
+        "obs_frontback": {
+          "behind": 31,
+          "front": 32
+        },
+        "vertical": {
+          "above": 36,
+          "below": 36
+        },
+        "mv_camera_motion": {
+          "left": 21,
+          "right": 15
+        },
+        "abstain": {
+          "unknown": 34
+        },
+        "mv_best_view": {
+          "first": 17,
+          "second": 17
+        }
+      }
+    },
+    "val": {
+      "samples": 390,
+      "scenes": 24,
+      "images": 48,
+      "by_task": {
+        "abstain": {
+          "unknown": 18
+        },
+        "depth": {
+          "farther": 24,
+          "closer": 24
+        },
+        "obs_lateral": {
+          "left": 22,
+          "right": 24
+        },
+        "visibility": {
+          "visible": 26,
+          "occluded": 22
+        },
+        "lateral": {
+          "left": 24,
+          "right": 24
+        },
+        "vertical": {
+          "below": 24,
+          "above": 24
+        },
+        "obs_frontback": {
+          "front": 23,
+          "behind": 23
+        },
+        "facing": {
+          "toward": 20,
+          "away": 20
+        },
+        "mv_best_view": {
+          "second": 10,
+          "first": 14
+        },
+        "mv_camera_motion": {
+          "right": 12,
+          "left": 12
+        }
+      }
+    },
+    "train": {
+      "samples": 5379,
+      "scenes": 330,
+      "images": 660,
+      "by_task": {
+        "obs_frontback": {
+          "front": 311,
+          "behind": 310
+        },
+        "abstain": {
+          "unknown": 346
+        },
+        "depth": {
+          "closer": 330,
+          "farther": 330
+        },
+        "obs_lateral": {
+          "left": 310,
+          "right": 311
+        },
+        "lateral": {
+          "right": 329,
+          "left": 330
+        },
+        "vertical": {
+          "below": 327,
+          "above": 327
+        },
+        "visibility": {
+          "visible": 330,
+          "occluded": 330
+        },
+        "facing": {
+          "toward": 257,
+          "away": 257
+        },
+        "mv_best_view": {
+          "second": 155,
+          "first": 159
+        },
+        "mv_camera_motion": {
+          "right": 182,
+          "left": 148
+        }
+      }
+    }
+  }
+}

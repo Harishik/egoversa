@@ -1,0 +1,11 @@
+# Ablation of A: additionally adapt the vision tower and projector.
+name: A_geometry_vision
+kind: train
+track: permissive
+dataset: research/data/egoversa-pilot
+train_files: [sft/train.jsonl]
+val_file: sft/val.jsonl
+purpose: "Does adapting visual features help observer-frame and occlusion tasks beyond language-side LoRA?"
+model: { hf_id: Qwen/Qwen3.5-0.8B }
+lora: { r: 16, alpha: 16, dropout: 0.0, finetune_vision: true, finetune_language: true }
+train: { epochs: 2, lr: 1.0e-4, batch_size: 4, grad_accum: 2, eval_every: 100, eval_examples: 96, early_stopping_patience: 4, seed: 3407 }

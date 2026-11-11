@@ -1,0 +1,20 @@
+{
+  "name": "egoversa-pilot",
+  "version": "0.2.0",
+  "baseSeed": "egv-pilot-1",
+  "imageWidth": 512,
+  "envs": [
+    "tabletop",
+    "room",
+    "workbench"
+  ],
+  "scenes": {
+    "test_iid": 12,
+    "test_ood": 12,
+    "val": 8,
+    "train": 110
+  },
+  "perViewPerTask": 1,
+  "toleranceScale": 1,
+  "license_track": "permissive"
+}

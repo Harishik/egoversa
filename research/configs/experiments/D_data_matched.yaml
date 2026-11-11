@@ -1,0 +1,15 @@
+# Control for C: the same number of extra training examples, but oracle-only. Build the extra file with
+#   npm run dataset -- --config research/configs/dataset.pilot.json --extra-train <scenes per env>
+# choosing the scene count so that sft/train_extra.jsonl has as many rows as
+# sft_teacher/train.verified_rationales.jsonl
+# and report the supervised-token counts of C and D side by side (run_summary.json records them).
+name: D_data_matched
+kind: train
+track: permissive
+dataset: research/data/egoversa-pilot
+train_files: [sft/train.jsonl, sft/train_extra.jsonl]
+val_file: sft/val.jsonl
+purpose: "Separate 'the teacher helped' from 'more data helped'."
+model: { hf_id: Qwen/Qwen3.5-0.8B }
+lora: { r: 16, alpha: 16, dropout: 0.0, finetune_vision: false, finetune_language: true }
+train: { epochs: 2, lr: 2.0e-4, batch_size: 4, grad_accum: 2, eval_every: 100, eval_examples: 96, early_stopping_patience: 4, seed: 3407 }

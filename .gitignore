@@ -1,0 +1,17 @@
+node_modules
+dist
+test-results
+playwright-report
+.DS_Store
+*.local
+.env
+.env.*
+# research artifacts
+research/.conda
+research/.venv
+research/runs
+__pycache__
+.pytest_cache
+.claude
+research/data/_*
+!.env.example

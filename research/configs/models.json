@@ -1,0 +1,73 @@
+{
+  "format": "egoversa.model-registry",
+  "version": 1,
+  "notes": "Single source of truth for model identity, licence and provenance track. Read by server/model-server.mjs, scripts/eval-models.ts and the Python tooling. `available` is never stored here: it is probed at run time.",
+  "models": [
+    {
+      "id": "qwen3.5-0.8b-base",
+      "label": "Qwen3.5-0.8B (base)",
+      "role": "student-base",
+      "hf_id": "Qwen/Qwen3.5-0.8B",
+      "hf_revision": "2fc06364715b967f1860aea9cf38778875588b17",
+      "params_millions": 873.4,
+      "license": "apache-2.0",
+      "track": "permissive",
+      "runtime": "ollama",
+      "ollama_tag": "qwen3.5:0.8b",
+      "precision": "Q8_0 (GGUF)",
+      "how_to_get": "ollama pull qwen3.5:0.8b"
+    },
+    {
+      "id": "qwen3.5-0.8b-base-q4",
+      "label": "Qwen3.5-0.8B (base, 4-bit)",
+      "role": "student-base-quantized",
+      "hf_id": "Qwen/Qwen3.5-0.8B",
+      "params_millions": 873.4,
+      "license": "apache-2.0",
+      "track": "permissive",
+      "runtime": "ollama",
+      "ollama_tag": "hf.co/unsloth/Qwen3.5-0.8B-GGUF:Q4_K_M",
+      "precision": "Q4_K_M (GGUF)",
+      "how_to_get": "ollama pull hf.co/unsloth/Qwen3.5-0.8B-GGUF:Q4_K_M"
+    },
+    {
+      "id": "egoversa-spatial-1b",
+      "label": "EgoVersa-Spatial-1B (fine-tuned student)",
+      "role": "student-tuned",
+      "hf_id": "Qwen/Qwen3.5-0.8B",
+      "params_millions": 873.4,
+      "license": "apache-2.0 base; adapter licence follows its training-data track",
+      "track": "permissive",
+      "runtime": "ollama",
+      "ollama_tag": "egoversa-spatial-1b",
+      "precision": "set at export",
+      "how_to_get": "Train with research/scripts/train_student.py, export with research/scripts/quantize_model.py. No trained weights are shipped."
+    },
+    {
+      "id": "spatialaxiom-9b",
+      "label": "SpatialAxiom-9B (research teacher)",
+      "role": "teacher",
+      "hf_id": "SpatialAxiom/SpatialAxiom-9B",
+      "params_millions": 9409.8,
+      "license": "cc-by-nc-4.0",
+      "track": "research-nc",
+      "runtime": "ollama",
+      "ollama_tag": "spatialaxiom-9b",
+      "precision": "BF16 upstream (18.8 GB)",
+      "how_to_get": "Non-commercial research only. Needs ~22 GB of GPU memory in BF16; see docs/RESEARCH_AND_SOURCES.md. Not downloaded by default."
+    },
+    {
+      "id": "minicpm-v-4.7-1b",
+      "label": "MiniCPM-V 4.7 1B (optional student, 1.55B total)",
+      "role": "student-alt",
+      "hf_id": "openbmb/MiniCPM-V-4.7-1B",
+      "params_millions": 1554.5,
+      "license": "apache-2.0",
+      "track": "permissive",
+      "runtime": "ollama",
+      "ollama_tag": "minicpm-v4.7:1b",
+      "precision": "n/a",
+      "how_to_get": "Optional comparison only; never substituted for the default student. Not downloaded by default."
+    }
+  ]
+}

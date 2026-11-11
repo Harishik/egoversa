@@ -1,0 +1,12 @@
+# Optional alternative 1B-class student. 1.55B parameters in total: never relabelled as "1B", never the default.
+name: F_optional_student
+kind: train
+track: permissive
+dataset: research/data/egoversa-pilot
+train_files: [sft/train.jsonl]
+val_file: sft/val.jsonl
+purpose: "Is a different 1B-class architecture materially better at the same geometry-only training?"
+model: { hf_id: openbmb/MiniCPM-V-4.7-1B }
+lora: { r: 16, alpha: 16, dropout: 0.0, finetune_vision: false, finetune_language: true }
+train: { epochs: 2, lr: 2.0e-4, batch_size: 4, grad_accum: 2, eval_every: 100, eval_examples: 96, early_stopping_patience: 4, seed: 3407 }
+status: "not validated. The processor / chat-template path of MiniCPM-V differs from Qwen3.5 and has not been exercised."

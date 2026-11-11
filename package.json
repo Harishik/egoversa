@@ -1,0 +1,49 @@
+{
+  "name": "egoversa",
+  "version": "0.2.0",
+  "private": true,
+  "description": "EGOVERSA \u2014 Same world. Different eyes. A local-first spatial-reasoning research studio for camera-relative question generation and evaluation.",
+  "author": "Harishik Dev Singh Jamwal",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --port 4173 --strictPort",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "e2e": "npm run build && playwright test",
+    "benchmark": "tsx scripts/run-benchmark.ts",
+    "screenshots": "node scripts/screenshots.mjs",
+    "dataset": "tsx scripts/build-dataset.ts",
+    "eval:models": "tsx scripts/eval-models.ts",
+    "model-server": "node server/model-server.mjs"
+  },
+  "dependencies": {
+    "@fontsource-variable/jetbrains-mono": "5.3.0",
+    "@fontsource-variable/manrope": "5.3.0",
+    "@fontsource/instrument-serif": "5.3.0",
+    "@react-three/drei": "9.122.0",
+    "@react-three/fiber": "8.18.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "three": "0.169.0",
+    "zustand": "4.5.7"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.0",
+    "@types/node": "22.10.2",
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "@types/three": "0.169.0",
+    "@vitejs/plugin-react": "4.7.0",
+    "autoprefixer": "10.4.20",
+    "postcss": "8.4.49",
+    "tailwindcss": "3.4.19",
+    "tsx": "4.23.15",
+    "typescript": "5.6.3",
+    "vite": "5.4.21",
+    "vitest": "2.1.9"
+  }
+}

@@ -1,0 +1,10 @@
+# Frozen 9B specialist. Non-commercial research only (CC BY-NC 4.0).
+name: baseline_1
+kind: evaluate
+track: research-nc
+model_id: spatialaxiom-9b
+dataset: research/data/egoversa-pilot
+splits: [test_iid, test_ood]
+purpose: "Teacher reference on the same locked test set."
+requires: "A GPU with roughly 22 GB of memory for BF16 (Unsloth's figure for Qwen3.5-9B LoRA; inference needs somewhat less)."
+command: "python research/scripts/evaluate_models.py --model-id spatialaxiom-9b --dataset research/data/egoversa-pilot --split test_iid test_ood"

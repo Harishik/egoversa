@@ -1,0 +1,13 @@
+# Post-training quantisation of the best AUTHORISED student (permissive track by default).
+name: E_quantized
+kind: quantize
+track: permissive
+source_run: research/runs/A_geometry
+precisions: [f16, q8_0, q4_k_m]
+dataset: research/data/egoversa-pilot
+splits: [test_iid, test_ood]
+purpose: "Accuracy, size, memory and latency deltas relative to the 16-bit reference."
+command: "python research/scripts/quantize_model.py --run research/runs/A_geometry --precisions f16 q8_0 q4_k_m"
+note: >
+  The same measurement on the UNTUNED base model (8-bit vs 4-bit GGUF) needs no training and is run by
+  `npm run eval:models -- --model qwen3.5-0.8b-base-q4`; its results are real and reported separately.

@@ -1,0 +1,8 @@
+# Versions verified in this repository (Intel macOS, conda-forge PyTorch 2.14.1).
+transformers==5.22.2
+peft==0.21.2
+accelerate
+pillow
+pyyaml
+pytest
+huggingface_hub

@@ -1,0 +1,11 @@
+# Geometry-only supervised fine-tuning: every target is an oracle-verified label.
+name: A_geometry
+kind: train
+track: permissive
+dataset: research/data/egoversa-pilot
+train_files: [sft/train.jsonl]
+val_file: sft/val.jsonl
+purpose: "Measure what direct specialised training on verified geometry buys."
+model: { hf_id: Qwen/Qwen3.5-0.8B }
+lora: { r: 16, alpha: 16, dropout: 0.0, finetune_vision: false, finetune_language: true }
+train: { epochs: 2, lr: 2.0e-4, batch_size: 4, grad_accum: 2, eval_every: 100, eval_examples: 96, early_stopping_patience: 4, seed: 3407 }

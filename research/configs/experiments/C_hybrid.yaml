@@ -1,0 +1,12 @@
+# Oracle labels for every sample PLUS auxiliary "explain" examples whose targets are teacher rationales
+# that passed verification against the oracle (wrong or contradictory teacher outputs are dropped).
+name: C_hybrid
+kind: train
+track: research-nc
+dataset: research/data/egoversa-pilot
+train_files: [sft/train.jsonl, sft_teacher/train.verified_rationales.jsonl]
+val_file: sft/val.jsonl
+purpose: "Full treatment. Does verified teacher reasoning add anything on top of geometry labels?"
+model: { hf_id: Qwen/Qwen3.5-0.8B }
+lora: { r: 16, alpha: 16, dropout: 0.0, finetune_vision: false, finetune_language: true }
+train: { epochs: 2, lr: 2.0e-4, batch_size: 4, grad_accum: 2, eval_every: 100, eval_examples: 96, early_stopping_patience: 4, seed: 3407 }
