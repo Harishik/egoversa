@@ -4,6 +4,28 @@
 
 By Harishik Dev Singh Jamwal
 
+[![License: MIT](https://img.shields.io/badge/license-MIT-7C87FF.svg)](LICENSE)
+![Version](https://img.shields.io/badge/version-0.2.0-5CE1E6.svg)
+![Status](https://img.shields.io/badge/status-research%20prototype-F0B866.svg)
+![Tests](https://img.shields.io/badge/tests-89%20TS%20%2B%2035%20Python%20passing-6EE7A8.svg)
+![E2E](https://img.shields.io/badge/e2e-Playwright-2EAD33.svg?logo=playwright&logoColor=white)
+
+![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6.svg?logo=typescript&logoColor=white)
+![React](https://img.shields.io/badge/React-18-61DAFB.svg?logo=react&logoColor=black)
+![Three.js](https://img.shields.io/badge/Three.js-r169-000000.svg?logo=threedotjs&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-5-646CFF.svg?logo=vite&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4.svg?logo=tailwindcss&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.11-3776AB.svg?logo=python&logoColor=white)
+![PyTorch](https://img.shields.io/badge/PyTorch-2.14-EE4C2C.svg?logo=pytorch&logoColor=white)
+![Transformers](https://img.shields.io/badge/%F0%9F%A4%97%20Transformers-5.22-FFD21E.svg)
+![PEFT LoRA](https://img.shields.io/badge/PEFT-LoRA-FF9D00.svg)
+![Ollama](https://img.shields.io/badge/Ollama-local%20inference-000000.svg?logo=ollama&logoColor=white)
+
+[![Base model](https://img.shields.io/badge/student-Qwen3.5--0.8B%20%7C%20Apache--2.0-8A2BE2.svg)](https://huggingface.co/Qwen/Qwen3.5-0.8B)
+[![Teacher](https://img.shields.io/badge/teacher-SpatialAxiom--9B%20%7C%20CC%20BY--NC-B5651D.svg)](https://huggingface.co/SpatialAxiom/SpatialAxiom-9B)
+![Base accuracy](https://img.shields.io/badge/base%20accuracy%20on%20locked%20test-52.2%25-lightgrey.svg)
+![Fine-tuned](https://img.shields.io/badge/fine--tuned%20student-pending%20GPU%20run-lightgrey.svg)
+
 A research workbench for viewpoint and perspective reasoning in vision-language models.
 
 EgoVersa generates seeded 3D scenes and places a movable camera and oriented "observers" in them. It
