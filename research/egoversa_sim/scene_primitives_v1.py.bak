@@ -1,0 +1,271 @@
+"""Procedural MuJoCo scenes: seed -> MJCF -> physically settled state.
+
+World frame (MuJoCo convention): right-handed, metres, +Z up, gravity -Z.
+
+A scene is a table on a floor with 5-9 named free bodies (blocks, balls, cans, ...) dropped onto it and
+onto each other, plus 1-2 robots standing on the table. Robots are static bodies whose face (visor) points
+along their local +X axis; each carries a head camera looking along that axis, so the simulator can render
+exactly what the robot sees.
+
+Determinism: all randomness comes from numpy.random.default_rng(seed-derived integer). MuJoCo stepping is
+deterministic for a given model, state and build, so the same spec gives the same settled poses on one machine.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+import math
+from dataclasses import asdict, dataclass, field
+from typing import Optional
+
+import mujoco
+import numpy as np
+
+COLORS = {
+    "red": (0.90, 0.28, 0.30), "orange": (0.95, 0.46, 0.16), "yellow": (0.95, 0.79, 0.30), "green": (0.30, 0.70, 0.48),
+    "teal": (0.12, 0.72, 0.65), "blue": (0.29, 0.49, 1.00), "purple": (0.61, 0.43, 1.00), "pink": (0.94, 0.44, 0.66),
+    "white": (0.91, 0.92, 0.95), "black": (0.16, 0.17, 0.20), "brown": (0.66, 0.45, 0.29),
+}
+
+# noun -> (mujoco geom type, size sampler, mass kg, can be a base for stacking)
+TABLE_TOP_Z = 0.75
+TABLE_HALF = (0.55, 0.40)
+FOCUS = np.array([0.0, 0.0, TABLE_TOP_Z + 0.10])
+
+
+def _hash_int(s: str) -> int:
+    return int.from_bytes(hashlib.sha256(s.encode()).digest()[:8], "little")
+
+
+@dataclass
+class ObjSpec:
+    name: str
+    noun: str
+    color: str
+    geom: str  # box | sphere | cylinder | capsule | ellipsoid
+    size: list[float]  # MuJoCo half-sizes / radii
+    pos: list[float]  # spawn position
+    euler: list[float]  # spawn orientation (rad, XYZ)
+    mass: float
+    base: bool = False
+
+
+@dataclass
+class AgentSpec:
+    name: str
+    color: str
+    pos: list[float]
+    yaw: float  # radians about +Z; facing direction = (cos yaw, sin yaw, 0)
+    height: float
+
+
+@dataclass
+class SimSceneSpec:
+    seed: str
+    n_objects: int = 7
+    n_agents: int = 1
+    stack_prob: float = 0.45
+    exclude: list[str] = field(default_factory=list)
+
+
+@dataclass
+class SimScene:
+    spec: SimSceneSpec
+    objects: list[ObjSpec]
+    agents: list[AgentSpec]
+    xml: str
+    model: mujoco.MjModel
+    data: mujoco.MjData
+    body_ids: dict[str, int]  # object / agent name -> body id
+    settle_trajectory: list[dict]  # recorded poses during settling (for playback)
+    fingerprint: str = ""
+
+    def object_names(self) -> list[str]:
+        return [o.name for o in self.objects]
+
+
+NOUNS = {
+    "block": ("box", lambda r: [r.uniform(.035, .055)] * 3, 0.25, True),
+    "crate": ("box", lambda r: [r.uniform(.07, .09), r.uniform(.06, .08), r.uniform(.045, .06)], 0.6, True),
+    "book": ("box", lambda r: [r.uniform(.08, .10), r.uniform(.06, .07), r.uniform(.012, .018)], 0.35, True),
+    "ball": ("sphere", lambda r: [r.uniform(.03, .045)], 0.12, False),
+    "can": ("cylinder", lambda r: [r.uniform(.028, .035), r.uniform(.045, .06)], 0.2, True),
+    "plate": ("cylinder", lambda r: [r.uniform(.07, .085), .008], 0.3, True),
+    "bar": ("capsule", lambda r: [r.uniform(.015, .02), r.uniform(.05, .07)], 0.15, False),
+    "egg": ("ellipsoid", lambda r: (lambda a: [a, a, a * 1.35])(r.uniform(.025, .032)), 0.08, False),
+    "cone": ("cylinder", lambda r: [r.uniform(.02, .028), r.uniform(.06, .075)], 0.1, False),  # tall thin cylinder ("cone" is visually a post)
+}
+NOUNS.pop("cone")  # MuJoCo has no cone primitive; kept out rather than mislabelled
+HELD_OUT_NOUNS = ["egg", "plate"]  # reserved for out-of-distribution test splits
+
+
+def _rot_quat_z(yaw: float) -> list[float]:
+    return [math.cos(yaw / 2), 0.0, 0.0, math.sin(yaw / 2)]
+
+
+def _fmt(v) -> str:
+    return " ".join(f"{x:.5f}" for x in v)
+
+
+def build_mjcf(objects: list[ObjSpec], agents: list[AgentSpec], img_w: int = 512, img_h: int = 384) -> str:
+    """MJCF for the scene. Object bodies are named obj:<name>, agents agent:<name>."""
+    parts = []
+    for o in objects:
+        rgba = (*COLORS[o.color], 1.0)
+        parts.append(
+            f'<body name="obj:{o.name}" pos="{_fmt(o.pos)}" euler="{_fmt(o.euler)}">'
+            f'<freejoint/><geom type="{o.geom}" size="{_fmt(o.size)}" rgba="{_fmt(rgba)}" mass="{o.mass:.4f}" '
+            f'material="objmat" friction="0.9 0.01 0.001" condim="4"/></body>'
+        )
+    for a in agents:
+        h = a.height
+        rgba = (*COLORS[a.color], 1.0)
+        dark = ".15 .16 .2 1"
+        # Static robot: legs, torso, head, a glowing visor and chest panel on the +X face, feet pointing +X.
+        # The head camera looks along +X, pitched 25 degrees down.
+        parts.append(
+            f'<body name="agent:{a.name}" pos="{_fmt(a.pos)}" quat="{_fmt(_rot_quat_z(a.yaw))}">'
+            f'<geom type="box" size="{.07*h:.4f} {.05*h:.4f} {.15*h:.4f}" pos="0 {-.09*h:.4f} {.15*h:.4f}" rgba="{dark}"/>'
+            f'<geom type="box" size="{.07*h:.4f} {.05*h:.4f} {.15*h:.4f}" pos="0 {.09*h:.4f} {.15*h:.4f}" rgba="{dark}"/>'
+            f'<geom type="box" size="{.11*h:.4f} {.05*h:.4f} {.03*h:.4f}" pos="{.05*h:.4f} {-.09*h:.4f} {.03*h:.4f}" rgba="{dark}"/>'
+            f'<geom type="box" size="{.11*h:.4f} {.05*h:.4f} {.03*h:.4f}" pos="{.05*h:.4f} {.09*h:.4f} {.03*h:.4f}" rgba="{dark}"/>'
+            f'<geom type="box" size="{.12*h:.4f} {.19*h:.4f} {.18*h:.4f}" pos="0 0 {.48*h:.4f}" rgba="{_fmt(rgba)}"/>'
+            f'<geom type="box" size="{.01*h:.4f} {.09*h:.4f} {.06*h:.4f}" pos="{.125*h:.4f} 0 {.5*h:.4f}" rgba=".88 .9 .95 1"/>'
+            f'<geom type="box" size="{.13*h:.4f} {.15*h:.4f} {.12*h:.4f}" pos="0 0 {.79*h:.4f}" rgba="{_fmt(rgba)}"/>'
+            f'<geom type="box" size="{.01*h:.4f} {.12*h:.4f} {.04*h:.4f}" pos="{.135*h:.4f} 0 {.81*h:.4f}" rgba=".36 .88 .9 1" material="visor"/>'
+            f'<camera name="eye:{a.name}" pos="{.16*h:.4f} 0 {.81*h:.4f}" xyaxes="0 -1 0 0.42262 0 0.90631" fovy="75"/>'
+            f"</body>"
+        )
+    tx, ty = TABLE_HALF
+    legs = "".join(
+        f'<geom type="box" size=".025 .025 {TABLE_TOP_Z/2-.02:.4f}" pos="{sx*(tx-.05):.3f} {sy*(ty-.05):.3f} {TABLE_TOP_Z/2-.02:.4f}" material="legmat"/>'
+        for sx in (-1, 1) for sy in (-1, 1)
+    )
+    return f"""<mujoco model="egoversa-sim">
+  <compiler angle="radian"/>
+  <option timestep="0.002" gravity="0 0 -9.81" integrator="implicitfast"/>
+  <visual>
+    <global offwidth="{max(img_w, 1024)}" offheight="{max(img_h, 768)}" fovy="50"/>
+    <quality shadowsize="4096" offsamples="8"/>
+    <headlight ambient=".38 .38 .42" diffuse=".62 .62 .62" specular=".1 .1 .1"/>
+    <map znear="0.01" zfar="50"/>
+  </visual>
+  <asset>
+    <texture name="sky" type="skybox" builtin="gradient" rgb1=".10 .12 .24" rgb2=".02 .03 .08" width="256" height="256"/>
+    <texture name="floor" type="2d" builtin="checker" rgb1=".16 .19 .33" rgb2=".12 .14 .26" width="512" height="512" mark="edge" markrgb=".22 .26 .44"/>
+    <material name="floormat" texture="floor" texrepeat="6 6" reflectance="0.08"/>
+    <texture name="wood" type="2d" builtin="flat" rgb1=".55 .40 .28" width="64" height="64"/>
+    <material name="tablemat" texture="wood" specular="0.25" shininess="0.3"/>
+    <material name="legmat" rgba=".23 .25 .38 1"/>
+    <material name="objmat" specular="0.35" shininess="0.5"/>
+    <material name="visor" emission="0.8"/>
+  </asset>
+  <worldbody>
+    <light name="key" pos="1.4 -1.2 2.6" dir="-0.45 0.4 -1" diffuse=".8 .8 .78" specular=".3 .3 .3" castshadow="true"/>
+    <light name="fill" pos="-1.5 1.2 2.0" dir="0.5 -0.4 -1" diffuse=".25 .27 .35" castshadow="false"/>
+    <geom name="floor" type="plane" size="4 4 .1" material="floormat"/>
+    <body name="table" pos="0 0 0">
+      <geom name="tabletop" type="box" size="{tx} {ty} .02" pos="0 0 {TABLE_TOP_Z-.02:.4f}" material="tablemat" friction="0.9 0.01 0.001"/>
+      {legs}
+    </body>
+    <camera name="viewer" pos="0 -1.6 1.4" xyaxes="1 0 0 0 .6 .8" fovy="50"/>
+    {"".join(parts)}
+  </worldbody>
+</mujoco>"""
+
+
+def sample_scene(spec: SimSceneSpec) -> tuple[list[ObjSpec], list[AgentSpec]]:
+    rng = np.random.default_rng(_hash_int(f"egoversa-sim/v1|{spec.seed}|{spec.n_objects}|{spec.n_agents}|{spec.stack_prob}"))
+    nouns = [n for n in NOUNS if n not in spec.exclude]
+    colors = list(COLORS)
+    objects: list[ObjSpec] = []
+    used: set[str] = set()
+    footprints: list[tuple[float, float, float]] = []  # x, y, r of ground-level objects
+    tx, ty = TABLE_HALF
+    for i in range(spec.n_objects):
+        bases = [o for o in objects if o.base and o.pos[2] < TABLE_TOP_Z + 0.2]
+        stack = bool(bases) and rng.random() < spec.stack_prob
+        noun = str(rng.choice(nouns))
+        for _ in range(20):
+            color = str(rng.choice(colors))
+            if f"{color} {noun}" not in used:
+                break
+        name = f"{color} {noun}"
+        if name in used:
+            continue
+        used.add(name)
+        gtype, sizer, mass, base = NOUNS[noun]
+        size = [float(round(s, 4)) for s in sizer(rng)]
+        half_h = size[2] if gtype in ("box", "ellipsoid") else size[1] if gtype == "cylinder" else size[0]
+        euler = [0.0, 0.0, float(rng.uniform(-math.pi, math.pi))]
+        if gtype == "capsule":
+            euler[1] = math.pi / 2  # bars lie down
+        if stack:
+            b = bases[int(rng.integers(len(bases)))]
+            # small horizontal offset: sometimes centred (stable), sometimes overhanging (may topple)
+            off = rng.normal(0, 0.012, 2) if rng.random() < 0.75 else rng.normal(0, 0.035, 2)
+            pos = [b.pos[0] + off[0], b.pos[1] + off[1], b.pos[2] + 0.12 + half_h]
+        else:
+            r = max(size[:2]) * 1.4 + 0.02
+            for _ in range(60):
+                x, y = rng.uniform(-tx + r + .03, tx - r - .03), rng.uniform(-ty + r + .03, ty - r - .03)
+                if all(math.hypot(x - fx, y - fy) > r + fr for fx, fy, fr in footprints):
+                    break
+            footprints.append((x, y, r))
+            pos = [x, y, TABLE_TOP_Z + half_h + 0.01]
+        objects.append(ObjSpec(name, noun, color, gtype, size, [float(v) for v in pos], euler, mass, base))
+    agents: list[AgentSpec] = []
+    agent_colors = [c for c in colors if c not in ("black", "brown")]
+    for k in range(spec.n_agents):
+        h = 0.26
+        for _ in range(80):
+            x, y = rng.uniform(-tx + .1, tx - .1), rng.uniform(-ty + .1, ty - .1)
+            if all(math.hypot(x - fx, y - fy) > fr + 0.09 for fx, fy, fr in footprints):
+                break
+        footprints.append((x, y, 0.07))
+        free = [c for c in agent_colors if f"{c} robot" not in {a.name for a in agents}]
+        color = str(rng.choice(free))
+        name = f"{color} robot"
+        # Face roughly toward the middle of the table (within +-110 degrees) so the robot usually has objects in view;
+        # the spread still covers every heading offset relative to the cameras.
+        yaw = math.atan2(-y, -x) + float(rng.uniform(-1.92, 1.92))
+        agents.append(AgentSpec(name, color, [float(x), float(y), TABLE_TOP_Z], yaw, h))
+    return objects, agents
+
+
+def _record(model, data, body_ids: dict[str, int]) -> dict:
+    return {n: [*map(float, data.xpos[b]), *map(float, data.xquat[b])] for n, b in body_ids.items() if n.startswith("obj:")}
+
+
+def build_scene(spec: SimSceneSpec, settle_s: float = 2.5, record_every: int = 17, img_w: int = 512, img_h: int = 384,
+                objects: Optional[list[ObjSpec]] = None, agents: Optional[list[AgentSpec]] = None) -> SimScene:
+    """Sample (or take the given) objects and agents, compile the MJCF and settle it under gravity."""
+    if objects is None or agents is None:
+        objects, agents = sample_scene(spec)
+    xml = build_mjcf(objects, agents, img_w, img_h)
+    model = mujoco.MjModel.from_xml_string(xml)
+    data = mujoco.MjData(model)
+    body_ids = {}
+    for o in objects:
+        body_ids[f"obj:{o.name}"] = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, f"obj:{o.name}")
+    for a in agents:
+        body_ids[f"agent:{a.name}"] = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, f"agent:{a.name}")
+    mujoco.mj_forward(model, data)
+    traj = [{"t": 0.0, "poses": _record(model, data, body_ids)}]
+    steps = int(settle_s / model.opt.timestep)
+    for i in range(1, steps + 1):
+        mujoco.mj_step(model, data)
+        if i % record_every == 0:
+            traj.append({"t": round(i * model.opt.timestep, 4), "poses": _record(model, data, body_ids)})
+    # Let residual motion die out, then zero velocities so every later query starts from rest.
+    data.qvel[:] = 0
+    mujoco.mj_forward(model, data)
+    scene = SimScene(spec, objects, agents, xml, model, data, body_ids, traj)
+    scene.fingerprint = hashlib.sha256(
+        json.dumps({n: [round(float(v), 4) for v in (*data.xpos[b], *data.xquat[b])] for n, b in sorted(body_ids.items())}).encode()
+    ).hexdigest()[:8]
+    return scene
+
+
+def spec_dict(spec: SimSceneSpec) -> dict:
+    return asdict(spec)

@@ -1,0 +1,7 @@
+{
+  "name": "egoversa-sim-smoke",
+  "version": "0.5.0",
+  "baseSeed": "egv-sim-smoke-1",
+  "scenes": { "test_iid": 6, "test_ood": 6, "val": 4, "train": 10 },
+  "perViewPerTask": 1
+}

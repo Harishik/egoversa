@@ -1,0 +1,251 @@
+{
+  "format": "egoversa.dataset",
+  "version": 1,
+  "name": "egoversa-sim-smoke",
+  "dataset_version": "0.5.0",
+  "engine": "egoversa-sim-0.5.0",
+  "simulator": "MuJoCo 3.16",
+  "license_track": "permissive",
+  "config": {
+    "name": "egoversa-sim-smoke",
+    "version": "0.5.0",
+    "baseSeed": "egv-sim-smoke-1",
+    "scenes": {
+      "test_iid": 6,
+      "test_ood": 6,
+      "val": 4,
+      "train": 10
+    },
+    "perViewPerTask": 1
+  },
+  "updated_at": "2026-11-21T15:57:26Z",
+  "splits": {
+    "test_iid": {
+      "samples": 112,
+      "scenes": 6,
+      "images": 16,
+      "by_task": {
+        "depth": {
+          "closer": 6,
+          "farther": 5
+        },
+        "counterfactual": {
+          "no": 6,
+          "yes": 5
+        },
+        "lateral": {
+          "left": 5,
+          "right": 6
+        },
+        "visibility": {
+          "visible": 8,
+          "occluded": 4
+        },
+        "support": {
+          "yes": 6,
+          "no": 6
+        },
+        "mv_camera_motion": {
+          "left": 3,
+          "right": 3
+        },
+        "obs_frontback": {
+          "behind": 2,
+          "front": 8
+        },
+        "obs_lateral": {
+          "right": 3,
+          "left": 7
+        },
+        "vertical": {
+          "above": 3,
+          "below": 2
+        },
+        "obs_lateral_eye": {
+          "left": 7
+        },
+        "facing": {
+          "toward": 2
+        },
+        "mv_best_view": {
+          "second": 1,
+          "first": 1
+        },
+        "abstain": {
+          "unknown": 1
+        }
+      }
+    },
+    "test_ood": {
+      "samples": 103,
+      "scenes": 6,
+      "images": 14,
+      "by_task": {
+        "depth": {
+          "closer": 6,
+          "farther": 6
+        },
+        "support": {
+          "yes": 6,
+          "no": 6
+        },
+        "obs_frontback": {
+          "behind": 7,
+          "front": 3
+        },
+        "visibility": {
+          "visible": 7,
+          "occluded": 5
+        },
+        "obs_lateral": {
+          "left": 5,
+          "right": 4
+        },
+        "lateral": {
+          "left": 6,
+          "right": 6
+        },
+        "vertical": {
+          "above": 4,
+          "below": 5
+        },
+        "counterfactual": {
+          "no": 4,
+          "yes": 4
+        },
+        "mv_best_view": {
+          "second": 2
+        },
+        "mv_camera_motion": {
+          "left": 4,
+          "right": 2
+        },
+        "abstain": {
+          "unknown": 4
+        },
+        "obs_lateral_eye": {
+          "left": 2
+        },
+        "facing": {
+          "toward": 2,
+          "away": 1
+        }
+      }
+    },
+    "val": {
+      "samples": 68,
+      "scenes": 4,
+      "images": 12,
+      "by_task": {
+        "support": {
+          "yes": 4,
+          "no": 4
+        },
+        "obs_lateral_eye": {
+          "right": 2,
+          "left": 2
+        },
+        "depth": {
+          "closer": 4,
+          "farther": 4
+        },
+        "obs_frontback": {
+          "front": 4,
+          "behind": 1
+        },
+        "lateral": {
+          "left": 4,
+          "right": 4
+        },
+        "visibility": {
+          "visible": 6,
+          "occluded": 2
+        },
+        "obs_lateral": {
+          "right": 2,
+          "left": 3
+        },
+        "facing": {
+          "toward": 1
+        },
+        "abstain": {
+          "unknown": 1
+        },
+        "mv_camera_motion": {
+          "right": 2,
+          "left": 2
+        },
+        "mv_best_view": {
+          "first": 1,
+          "second": 1
+        },
+        "counterfactual": {
+          "no": 3,
+          "yes": 2
+        },
+        "vertical": {
+          "below": 1,
+          "above": 1
+        }
+      }
+    },
+    "train": {
+      "samples": 180,
+      "scenes": 10,
+      "images": 28,
+      "by_task": {
+        "lateral": {
+          "left": 9,
+          "right": 9
+        },
+        "vertical": {
+          "above": 6,
+          "below": 4
+        },
+        "support": {
+          "no": 10,
+          "yes": 10
+        },
+        "depth": {
+          "closer": 9,
+          "farther": 9
+        },
+        "visibility": {
+          "visible": 11,
+          "occluded": 9
+        },
+        "counterfactual": {
+          "no": 11,
+          "yes": 6
+        },
+        "obs_lateral": {
+          "left": 8,
+          "right": 7
+        },
+        "obs_lateral_eye": {
+          "left": 5,
+          "right": 5
+        },
+        "obs_frontback": {
+          "front": 10,
+          "behind": 5
+        },
+        "mv_camera_motion": {
+          "left": 5,
+          "right": 5
+        },
+        "facing": {
+          "away": 4,
+          "toward": 2
+        },
+        "abstain": {
+          "unknown": 4
+        },
+        "mv_best_view": {
+          "second": 2,
+          "first": 2
+        }
+      }
+    }
+  }
+}

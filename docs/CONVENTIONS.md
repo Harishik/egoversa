@@ -165,3 +165,71 @@ turned into an abstention.
 
 **Best view (two views).** Asked only when the object's unoccluded fraction differs by at least 0.4
 between the views, and the object is at least 80% in frame in both.
+
+## 8. EgoVersa-Sim (MuJoCo) conventions (v0.3)
+
+Implementation: `research/egoversa_sim/` (`scene.py`, `oracle.py`, `questions.py`).
+
+**World frame.** MuJoCo's: right-handed, metres, **+Z up**, gravity −Z. (The Three.js pipeline uses +Y up;
+each pipeline's labels are computed in its own frame and never mixed.)
+
+**Scenes.**
+- A table (top at z = 0.75 m) with 6–9 free bodies, dropped from small heights; a share of them is
+  spawned on top of others.
+- They settle for 2.5 s at a 2 ms timestep (implicit-fast integrator), then all velocities are zeroed.
+- Robots are static bodies standing on the table. Their face points along local +X, with a head camera
+  pitched 25° down (vertical FOV 75°). They face the table centre within ±110°.
+- Two objects can share a noun but never a full name. Object types `egg` and `plate` appear only in
+  `test_ood`.
+
+**Viewer camera.**
+- Orbits the focus point (0, 0, 0.85) by azimuth: 0° puts the camera on the −Y side looking toward +Y.
+- Upright (no roll); vertical FOV 50°; images are 512×384.
+- Camera axes: +x right, +y up, the camera looks along −z (MuJoCo / OpenGL).
+
+**Visibility.**
+- f = modal / amodal pixel count.
+- *Modal*: pixels of the object in a segmentation render of the full scene.
+- *Amodal*: pixels of the object in a segmentation render where every other geom is hidden, using geom
+  groups.
+- Both renders use the same camera, so only in-frame pixels are counted.
+- In-frame fraction comes from the projected bounding box of each geom's bounding sphere.
+- An object needs at least 150 amodal pixels to be measurable. Opaque geometry only.
+
+**Camera-frame relations.** Same rules and tolerances as section 2: bearing θ = atan2(x_c, −z_c) with
+τ = 4°; range with τ = 5% of the mean range; height (world z) with τ = 3% of the mean range.
+
+**Observer frame.**
+- The robot's heading f is its body x axis projected on the floor; its right is r = f × ẑ.
+- For the horizontal offset d from the robot to an object: φ = asin(r·d/‖d‖) (left < −12° < tie < 12° < right)
+  and ψ = asin(f·d/‖d‖) (front/behind, same band).
+- The heading offset θ ∈ [0°, 180°] is between f and the camera's horizontal forward direction.
+
+**Facing.** α = angle between f and the horizontal direction from the robot to the camera: toward if
+α ≤ 60°, away if α ≥ 120°, ambiguous between.
+
+**Support.**
+- The settled state's contacts are read with `mj_contactForce`.
+- For each contact, the vertical component of the normal force says which body pushes which body up.
+- "A rests on B" when the summed upward force from B on A is at least 20% of A's weight.
+- The supporters can be the table, another object, or (it happens) a robot.
+
+**Counterfactual removal.**
+- Object B is moved 20 m away and held there; the scene is simulated for 1.2 s from rest.
+- Each other object's displacement gives the label: **yes, it moves** if > 3 cm; **no** if < 1 cm;
+  ambiguous in between (excluded).
+- "No" questions are asked only about objects within 25 cm of B, so they are not trivially far away.
+- Only objects are removable, never robots or the table.
+
+**Imagery condition.**
+- `obs_lateral_eye` repeats an `obs_lateral` question verbatim with a second image: the robot's own
+  head-camera render.
+- It is generated only when the object covers at least 400 pixels of that view, so the extra image
+  really contains the answer.
+- Every imagery item is selected together with its plain twin for a paired comparison.
+
+**Determinism.**
+- Seeds feed `numpy.random.default_rng`, and MuJoCo stepping is deterministic for a given build.
+- Scene fingerprints hash every body's position and orientation after settling.
+- Different MuJoCo versions or CPUs may settle differently, so fingerprints are recorded and the lock
+  refuses mismatches.

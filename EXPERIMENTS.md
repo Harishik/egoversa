@@ -184,6 +184,79 @@ A real LoRA update of Qwen3.5-0.8B on CPU (FP32):
 This proves the code path, not learning: 8 examples cannot teach anything measurable. The adapter in
 `research/runs/smoke-smoke` must not be evaluated or exported; `quantize_model.py` refuses smoke runs.
 
+## E6. CPU post-training on realistic MuJoCo scenes (trunk caching + exact-expectation policy optimisation)
+
+Data: `egoversa-sim-pilot` (v0.4.0, realistic). 27 Google Scanned Objects, Unitree G1 and Stretch 3 robots.
+5,752 train / 364 val / 734 test_iid / 576 test_ood items. Four held-out assets appear only in test_ood (435 items).
+Method: `research/scripts/train_cpu.py`. All runs are CPU only on an 8-thread Intel Mac.
+
+**Exactness of the trunk cut.** Resuming at decoder layer 16 from the cached activations reproduces the full
+model's next-token logits to max |Δ| = 5.7e-6, with the same argmax at three image sizes. A top-only forward
+takes 0.3–0.7 s against 1.8–7.9 s for the full model.
+
+**Cost.** Stage 1 cached 3,173 items in 6,476 s (2.04 s/item, once). Stage 2 trains 3.41 M LoRA parameters
+on layers 16–23 at 1.5 s/item including backward, with no vision tower and no sampling. Base and tuned are
+evaluated from the same caches, so every comparison is paired.
+
+**Run 1 (random batches, lr 2e-4, 2 epochs, 1,743 task-stratified items): no real gain.** Constrained
+accuracy (argmax over the admissible answers):
+
+| split | n | base | tuned | only tuned right / only base right |
+|---|---|---|---|---|
+| val (subsample) | 120 | 66.7% | 55.0% | 19 / 33 |
+| test_iid | 734 | 54.0% | 57.4% | 162 / 137 |
+| test_ood | 576 | 58.5% | 58.5% | 88 / 88 |
+
+The test_iid difference is not significant: exact McNemar on 162/137 gives p ≈ 0.17. The per-task table
+shows why. The base model answers "left" to 222 of 734 items; the tuned model answers "right" to 254. It
+swapped one answer prior for another instead of learning to read the scene.
+
+**Diagnosis.** It is not a bug. With both labels in one batch at lr 1e-4, two items separate to p > 0.99
+within 10 steps. With balanced batches, 32 lateral items are memorised (train 53% → 97%) while held-out
+lateral accuracy falls (73% → 50%). Two lessons follow:
+1. Random batches let a small model lower the loss by tracking each batch's label mix. Batches with one task
+   and balanced labels remove that shortcut (`balanced_batches`, now the default).
+2. Tens of items per task cannot teach the skill. Generalisation needs hundreds per task.
+
+**Run 2 (balanced batches, lr 1e-4, 3 epochs, same 1,743 items and caches): worse than base.**
+
+| split | n | base | tuned | only tuned right / only base right | exact McNemar p |
+|---|---|---|---|---|---|
+| val (subsample) | 120 | 66.7% | 45.0% | 20 / 46 | |
+| test_iid | 734 | 54.0% | 50.8% | 180 / 203 | 0.26 |
+| test_ood | 576 | 58.5% | 51.9% | 83 / 121 | 0.009 |
+
+Training p(gold) stayed at about 0.55 through all three epochs, so the adapter did not even fit the training set.
+Removing the label-prior shortcut left nothing else for it to learn. Read with the 32-item test above, the
+conclusion is that **LoRA on decoder layers 16–23 alone does not have the capacity to learn these spatial
+relations from the layer-16 state.** It can memorise a few items, but it can neither generalise nor fit 1.7k.
+This is a negative result and is kept as one. The next experiment moves the cut down (layer 6) on the
+rebalanced v0.5 data.
+
+**Capacity ablation (v0.5 data, lateral + observer-lateral only, 501 train items, 3 epochs, balanced batches).**
+Same items, caches computed at two cut points, constrained accuracy:
+
+| cut | trainable | split | n | base | tuned | only tuned right / only base right | exact McNemar p |
+|---|---|---|---|---|---|---|---|
+| layer 16 | 3.41 M (layers 16–23) | test_iid | 163 | 54.0% | 62.6% | 46 / 32 | 0.14 |
+| layer 16 | | test_ood | 128 | 58.6% | 56.2% | 16 / 19 | 0.74 |
+| **layer 6** | 7.65 M (layers 6–23) | test_iid | 163 | 54.0% | **69.3%** | 55 / 30 | **0.009** |
+| **layer 6** | | test_ood | 128 | 58.6% | **70.3%** | 26 / 11 | **0.020** |
+
+Per task with the layer-6 cut: camera-frame lateral rose from 58% to 78% (iid) and from 69% to 88% (ood, which
+includes the four held-out objects). Robot-frame lateral rose from 51% to 61% (iid) and from 49% to 55% (ood).
+The base model answers "left" to 148 of 163 iid items; the tuned model's answers match the balanced gold
+split. Training costs 2.9 s/item with the layer-6 cut against 1.3 s with the layer-16 cut, and caching costs
+1.7 s/item either way. **Conclusion: the cut point is the capacity knob. Layer 6 learns transferable spatial
+relations on CPU; layer 16 does not.**
+
+**Dataset flaws found by this run** (reported, not hidden):
+- `obs_frontback` is 100% "front" in every split, because realistic robots are posed facing the table.
+- `facing` is 224 "toward" vs 5 "away" in train.
+Both tasks are trivially solved by a constant answer and inflate base accuracy. Fixed in egoversa-sim v0.5.0:
+40% of robots now stand with their back to the table. In `egoversa-sim-pilot-v05` train, front/behind is 242/183
+and toward/away is 133/81.
+
 ## Not yet run
 
 | Run | Blocker |

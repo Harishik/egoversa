@@ -27,3 +27,16 @@ v0.1 was kept intact: scene lab, arena, geometry benchmark, exports and tests. v
 - **The UI never computes model answers.** It only displays real result files or live server replies.
 - **Plain PyTorch training loop instead of Unsloth.** It runs on CPU for verification here and on CUDA
   for real runs.
+
+## v0.3: EgoVersa-Sim (MuJoCo)
+
+| Milestone | Status | Where |
+|---|---|---|
+| MuJoCo on Intel macOS (conda-forge 3.16) with offscreen CGL rendering | done | research/environment.yml |
+| Seeded physical scenes with stacking, settling, robots and head cameras | done | research/egoversa_sim/scene.py |
+| Exact verifier: segmentation visibility, frames, contact-force support, removal rollouts | done, tested | research/egoversa_sim/oracle.py, research/tests/test_sim.py |
+| 14 task types including support, counterfactual and the paired imagery condition | done | research/egoversa_sim/questions.py |
+| Dataset builder in the shared format with a locked holdout | done | research/scripts/build_sim_dataset.py |
+| SV-GRPO trainer (answer, abstention, process, consistency rewards) | done; CPU smoke run | research/scripts/train_grpo.py |
+| Physics Lab playback workspace with recorded trajectories | done | src/components/workspaces/PhysicsLab.tsx, public/sim |
+| Paired imagery analysis (exact McNemar) | done | research/scripts/analyze_results.py |

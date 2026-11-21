@@ -15,3 +15,7 @@ __pycache__
 .claude
 research/data/_*
 !.env.example
+research/assets/
+research/data/egoversa-sim-pilot*/
+research/data/egoversa-sim-imagery/
+MUJOCO_LOG.TXT

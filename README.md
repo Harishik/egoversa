@@ -5,9 +5,9 @@
 By Harishik Dev Singh Jamwal
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-7C87FF.svg)](LICENSE)
-![Version](https://img.shields.io/badge/version-0.2.0-5CE1E6.svg)
+![Version](https://img.shields.io/badge/version-0.3.0-5CE1E6.svg)
 ![Status](https://img.shields.io/badge/status-research%20prototype-F0B866.svg)
-![Tests](https://img.shields.io/badge/tests-89%20TS%20%2B%2035%20Python%20passing-6EE7A8.svg)
+![Tests](https://img.shields.io/badge/tests-89%20TS%20%2B%2043%20Python%20passing-6EE7A8.svg)
 ![E2E](https://img.shields.io/badge/e2e-Playwright-2EAD33.svg?logo=playwright&logoColor=white)
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6.svg?logo=typescript&logoColor=white)
@@ -20,6 +20,8 @@ By Harishik Dev Singh Jamwal
 ![Transformers](https://img.shields.io/badge/%F0%9F%A4%97%20Transformers-5.22-FFD21E.svg)
 ![PEFT LoRA](https://img.shields.io/badge/PEFT-LoRA-FF9D00.svg)
 ![Ollama](https://img.shields.io/badge/Ollama-local%20inference-000000.svg?logo=ollama&logoColor=white)
+![MuJoCo](https://img.shields.io/badge/MuJoCo-3.16%20physics%20verifier-1F6FEB.svg)
+![RL](https://img.shields.io/badge/RL-simulator--verified%20GRPO-B5651D.svg)
 
 [![Base model](https://img.shields.io/badge/student-Qwen3.5--0.8B%20%7C%20Apache--2.0-8A2BE2.svg)](https://huggingface.co/Qwen/Qwen3.5-0.8B)
 [![Teacher](https://img.shields.io/badge/teacher-SpatialAxiom--9B%20%7C%20CC%20BY--NC-B5651D.svg)](https://huggingface.co/SpatialAxiom/SpatialAxiom-9B)
@@ -27,6 +29,12 @@ By Harishik Dev Singh Jamwal
 ![Fine-tuned](https://img.shields.io/badge/fine--tuned%20student-pending%20GPU%20run-lightgrey.svg)
 
 A research workbench for viewpoint and perspective reasoning in vision-language models.
+
+**v0.3 adds EgoVersa-Sim:** physics-grounded scenes in **MuJoCo**, where the simulator itself is the
+verifier. Visibility comes from segmentation masks, "resting on" from contact forces, and "what if this were
+removed?" from forward simulation. The robots' true first-person views drive a perfect-imagery experiment,
+and a simulator-verified reinforcement-learning trainer (SV-GRPO) builds on these labels. See
+[EgoVersa-Sim](#egoversa-sim-mujoco) below.
 
 EgoVersa generates seeded 3D scenes and places a movable camera and oriented "observers" in them. It
 derives camera-relative and observer-relative questions with exact geometric answers, renders them
@@ -122,7 +130,43 @@ research/.conda/bin/python research/scripts/train_student.py --config research/c
 | `research/scripts/mine_hard_examples.py` | Hard examples from train / val mistakes only |
 | `research/scripts/quantize_model.py` | Merge → GGUF + vision projector → Q8_0 / Q4_K_M → Ollama |
 | `research/scripts/serve_model.py` | Serve a HF checkpoint or adapter over the same API |
-| `pytest research/tests` | 35 Python tests (dataset integrity, holdout guard, licence tracks, CLIs) |
+| `pytest research/tests` | 43 Python tests (dataset integrity, holdout guard, licence tracks, CLIs, MuJoCo verifier, GRPO rewards) |
+
+## EgoVersa-Sim (MuJoCo)
+
+![EgoVersa-Sim pipeline](docs/figures/pipeline.svg)
+
+![Physics Lab](docs/screenshots/13-physics-lab.png)
+
+| | |
+|---|---|
+| Simulator | MuJoCo 3.16 (conda-forge build for Intel macOS; `research/environment.yml`) |
+| Scenes | A wood table with 6–9 **real scanned household objects** (27 from Google Scanned Objects: mugs, bowls, plates, speakers, an alarm clock, shoes, planters, toy animals, a cereal box…) at their real masses, dropped, some stacked, settled under gravity; 1–2 **real robot models** from MuJoCo Menagerie (Unitree G1 humanoid, Hello Robot Stretch 3) whose eye camera sits at the head sensor. Four assets are held out of training and appear only in the OOD test split |
+| Exact labels | Camera-frame relations, robot-frame relations, facing, segmentation-based visibility, **support from contact forces**, **counterfactual removal by forward simulation**, abstention on hidden objects, two-view tasks |
+| Imagery condition | Each observer left/right question is also asked with the robot's own rendered view attached, paired one-to-one for an exact McNemar test |
+| Training | SFT (`train_student.py`) and **SV-GRPO** (`train_grpo.py`): answer, abstention calibration, exact process reward on the stated reference frame, label-free cross-view consistency |
+| In the app | **Physics Lab**: replays recorded MuJoCo trajectories with the textured scanned meshes and the robot CAD meshes (settling and what-if removals), draws the support graph, and switches to any robot's exact eye camera |
+| Assets | `research/scripts/fetch_assets.py` downloads them (gitignored); licences in `research/assets/ATTRIBUTION.md` and `public/sim/assets/LICENSES.md` |
+
+```bash
+research/.conda/bin/python research/scripts/fetch_assets.py
+```
+
+```bash
+MUJOCO_GL=cgl research/.conda/bin/python research/scripts/build_sim_dataset.py --config research/configs/sim.smoke.json
+```
+
+```bash
+research/.conda/bin/python research/scripts/export_sim_scenes.py --count 6
+```
+
+```bash
+research/.conda/bin/python research/scripts/train_grpo.py --dataset research/data/egoversa-sim-smoke --smoke --consistency
+```
+
+Positioning against 2025–26 work (APC, ViewSpatial, MindCube, SpinBench, FlipSet, SVQA-R1, LeRF, DR-MV3D,
+Astra, WorldMind and others) is in [docs/RELATED_WORK.md](docs/RELATED_WORK.md). Exact definitions are in
+[docs/CONVENTIONS.md §8](docs/CONVENTIONS.md).
 
 ## What the workbench does
 
@@ -133,6 +177,10 @@ research/.conda/bin/python research/scripts/train_student.py --config research/c
     facing arrows on oriented objects, and the viewer's own image as an inset.
   - Every object is listed in world and camera coordinates with its ray-cast visibility.
   - Scenarios save locally and import/export as JSON.
+- **Physics Lab.** Six recorded MuJoCo scenes. Watch objects drop and settle, then replay "what if the X
+  were removed?" rollouts, with objects that move more than 3 cm highlighted. Shows the contact-force
+  support graph, a view through any robot's head camera, and oracle-labelled questions. The browser only
+  replays recordings; it never simulates or labels.
 - **Question Arena.** Ten question types are drawn from the current view, from camera left/right to
   "imagine you are the robot".
   - You answer from the clean image; the app reveals the geometric ground truth with its evidence and
@@ -178,7 +226,7 @@ data-matched control, quantised, alternative student), metrics and success crite
 |---|---|
 | `npm run typecheck` | exit 0 |
 | `npm test` | 89 passed |
-| `pytest research/tests` | 35 passed |
+| `pytest research/tests` | 43 passed (incl. MuJoCo rendering tests, run with graphics access) |
 | `npm run build` | passed |
 | `npm run e2e` (production build, headless Chrome, live model server + Ollama) | passed; a real Qwen3.5-0.8B reply is received in the arena |
 | `validate_dataset.py` on smoke and pilot | OK, 0 errors |
@@ -207,6 +255,8 @@ src/components                          three/ (incl. headless render target), w
 server/model-server.mjs                 local inference API (Ollama backend)
 scripts/                                dataset builder, model evaluation, geometry benchmark, screenshots
 research/egoversa_research              Python: dataset integrity, parsing mirror, SFT encoding, HF runtime
+research/egoversa_sim                   MuJoCo scenes, verifier (visibility, support, counterfactuals), questions
+public/sim                              recorded MuJoCo scenes replayed by the Physics Lab
 research/scripts  research/configs      CLIs and YAML / JSON configs (datasets, models, experiments)
 research/results                        real evaluation result files
 reports/  docs/  tests/  e2e/
@@ -214,10 +264,9 @@ reports/  docs/  tests/  e2e/
 
 ## Limitations
 
-- Synthetic scenes built from primitives. Nothing here measures real-photo ability.
+- Rendered scenes. The objects and robots are real scans and CAD models, but nothing here measures ability on real photos.
 - Only the base student has been evaluated. All fine-tuning and teacher results are pending compute.
 - The pilot test set is 1,163 items. Per-θ-bin cells hold 30–50 items, so read their intervals.
-- Training on this Intel Mac is a smoke test only; real runs need a CUDA GPU.
 - Exporting a trained student to GGUF needs a llama.cpp build that supports `qwen35`. Not executed.
 - Image bytes can differ across GPUs or drivers. Hashes are recorded and the lock detects mismatches.
 
@@ -233,6 +282,8 @@ server and research pipeline are local tools and are not deployed. Nothing has b
 - P. Y. Lee, C. Park et al. *Token Warping Helps MLLMs Look from Nearby Viewpoints.* CVPR 2026. https://arxiv.org/abs/2604.02870
 - K. Lee et al. *SpatialMosaic: A Multiview VLM Dataset for Partial Visibility.* arXiv 2512.23365. https://kanghee-lee.github.io/spatialmosaic/
 - Y. Lou et al. *SpatialAxiom.* 2026. https://d2i-ai.github.io/SpatialAxiom · https://huggingface.co/SpatialAxiom/SpatialAxiom-9B (CC BY-NC 4.0)
+- E. Todorov, T. Erez, Y. Tassa. *MuJoCo: A physics engine for model-based control.* IROS 2012. https://mujoco.org
+- Recent perspective-taking and spatial-RL work surveyed for v0.3: see [docs/RELATED_WORK.md](docs/RELATED_WORK.md).
 - Qwen Team. *Qwen3.5-0.8B.* https://huggingface.co/Qwen/Qwen3.5-0.8B (Apache 2.0)
 - OpenBMB. *MiniCPM-V 4.7 1B.* https://huggingface.co/openbmb/MiniCPM-V-4.7-1B (Apache 2.0)
 - Unsloth. *Qwen3.5 fine-tuning guide.* https://unsloth.ai/docs/models/qwen3.5/fine-tune

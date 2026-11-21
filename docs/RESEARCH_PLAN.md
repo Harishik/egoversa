@@ -107,3 +107,27 @@ McNemar's test.
   points of F16.
 - **Not a success criterion.** Beating the 9B teacher overall. Where it happens on a subset, it is
   reported with its interval, its n and the subsets where the teacher wins.
+
+## v0.3 additions: physics-grounded perspective taking (MuJoCo)
+
+Positioning against the 2025–26 literature is in [RELATED_WORK.md](RELATED_WORK.md). The new hypotheses:
+
+| | Hypothesis | Test | Supported if |
+|---|---|---|---|
+| H11 | Perspective-taking failure in small VLMs is mainly a *reasoning* failure, not a perception failure | Paired imagery ablation on `obs_lateral` vs `obs_lateral_eye` (same question, plus the robot's true view) | The robot's view lifts accuracy well above the plain condition (exact McNemar p < 0.05). If not, the model cannot even read left/right off the robot's own view, which points at grounding |
+| H12 | Physical support and removal outcomes are not readable from appearance by a base 1B model | `support`, `counterfactual` on the MuJoCo test splits | Accuracy at or near the majority-answer rate before training |
+| H13 | Exact process rewards help more than answer-only rewards | SV-GRPO with `--frame-reasoning` vs without, equal steps, from the same SFT checkpoint | Higher observer-frame accuracy, flatter accuracy-vs-θ curve |
+| H14 | Label-free cross-view consistency rewards reduce viewpoint-dependent flips | SV-GRPO `--consistency` vs answer-only | Lower disagreement between the two camera views of the same question, without lower accuracy |
+
+Runs (MuJoCo dataset `egoversa-sim-pilot`):
+
+| Run | Start | Rewards | Status |
+|---|---|---|---|
+| `S0` | base Qwen3.5-0.8B | none (zero-shot) | measured (E6, E7) |
+| `S1_sft` | base | SFT on oracle labels (`train_student.py`) | needs GPU |
+| `S2_grpo` | `S1_sft` | answer + format + abstain | needs GPU |
+| `S3_grpo_process` | `S1_sft` | + frame process reward | needs GPU |
+| `S4_grpo_consistency` | `S1_sft` | + cross-view consistency | needs GPU |
+| `S5_full` | `S1_sft` | all four | needs GPU |
+
+The training loop for S2–S5 is `research/scripts/train_grpo.py`, verified end to end by a 2-step CPU smoke run (E8).

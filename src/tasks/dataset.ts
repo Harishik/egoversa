@@ -17,8 +17,8 @@ import type { Scene } from '../scenes/types';
 import { generateQuestions, type QuestionSet } from './generator';
 import type { Question, Relation, Tolerances } from './types';
 
-export type TaskType = Relation | 'abstain' | 'mv_best_view' | 'mv_camera_motion';
-export const TASK_TYPES: TaskType[] = ['lateral', 'depth', 'vertical', 'visibility', 'obs_lateral', 'obs_frontback', 'facing', 'abstain', 'mv_best_view', 'mv_camera_motion'];
+export type TaskType = Relation | 'abstain' | 'mv_best_view' | 'mv_camera_motion' | 'obs_lateral_eye' | 'support' | 'counterfactual';
+export const TASK_TYPES: TaskType[] = ['lateral', 'depth', 'vertical', 'visibility', 'obs_lateral', 'obs_lateral_eye', 'obs_frontback', 'facing', 'support', 'counterfactual', 'abstain', 'mv_best_view', 'mv_camera_motion'];
 export const MULTI_VIEW_TASKS: TaskType[] = ['mv_best_view', 'mv_camera_motion'];
 
 export const TASK_TITLES: Record<TaskType, string> = {
@@ -32,6 +32,9 @@ export const TASK_TITLES: Record<TaskType, string> = {
   abstain: 'Abstain when hidden',
   mv_best_view: 'Two views: better view',
   mv_camera_motion: 'Two views: camera motion',
+  obs_lateral_eye: 'Left / right (observer) + robot’s view',
+  support: 'Resting on (contact forces)',
+  counterfactual: 'What if removed (simulated)',
 };
 
 export type ReferenceFrame = 'camera' | 'observer' | 'upright-viewer' | 'multi-view';

@@ -74,6 +74,15 @@ test('main flows work end to end', async ({ page }) => {
   await page.getByTestId('next-question').click();
   await expect(page.getByTestId('question-text')).not.toHaveText(q1!);
 
+  // Physics Lab: recorded MuJoCo scenes replay, what-if rollouts list real displacements, oracle questions shown.
+  await page.getByTestId('nav-physics').click();
+  await expect(page.getByTestId('physics-lab')).toContainText('MuJoCo');
+  await expect(page.getByTestId('physics-viewport').locator('canvas')).toBeVisible();
+  await page.getByTestId('rollout-button').first().click();
+  await expect(page.getByTestId('physics-lab')).toContainText('were removed?');
+  await expect(page.getByTestId('physics-questions')).toContainText('Answer');
+  await page.getByTestId('nav-arena').click();
+
   // Real model in the arena: either a genuine reply, or an explicit "not available" — never a canned answer.
   const panel = page.getByTestId('model-panel');
   await expect(panel).toContainText('Answer with a model');

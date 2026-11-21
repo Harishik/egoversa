@@ -1,0 +1,9 @@
+{
+  "name": "egoversa-sim-imagery",
+  "version": "0.5.0",
+  "baseSeed": "egv-sim-imagery-1",
+  "scenes": { "test_iid": 90, "test_ood": 0, "val": 0, "train": 0 },
+  "perViewPerTask": 0,
+  "perTask": { "obs_lateral": 3 },
+  "purpose": "Paired imagery ablation only: observer left/right questions, each with and without the robot's own rendered view."
+}

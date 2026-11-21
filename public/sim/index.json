@@ -1,0 +1,67 @@
+{
+ "format": "egoversa.sim-index",
+ "version": 1,
+ "simulator": "MuJoCo 3.16.0",
+ "scenes": [
+  {
+   "file": "scene-1.json",
+   "seed": "egv-sim-showcase/1",
+   "fingerprint": "c549a781",
+   "objects": 8,
+   "agents": 2,
+   "stacked": 3,
+   "rollouts": 4,
+   "bytes": 234816
+  },
+  {
+   "file": "scene-2.json",
+   "seed": "egv-sim-showcase/2",
+   "fingerprint": "68c855b7",
+   "objects": 8,
+   "agents": 1,
+   "stacked": 4,
+   "rollouts": 4,
+   "bytes": 224814
+  },
+  {
+   "file": "scene-3.json",
+   "seed": "egv-sim-showcase/3",
+   "fingerprint": "801f143f",
+   "objects": 8,
+   "agents": 2,
+   "stacked": 5,
+   "rollouts": 4,
+   "bytes": 239873
+  },
+  {
+   "file": "scene-4.json",
+   "seed": "egv-sim-showcase/4",
+   "fingerprint": "ceafd829",
+   "objects": 8,
+   "agents": 1,
+   "stacked": 6,
+   "rollouts": 4,
+   "bytes": 221410
+  },
+  {
+   "file": "scene-5.json",
+   "seed": "egv-sim-showcase/7",
+   "fingerprint": "872d5bb1",
+   "objects": 8,
+   "agents": 2,
+   "stacked": 4,
+   "rollouts": 3,
+   "bytes": 203038
+  },
+  {
+   "file": "scene-6.json",
+   "seed": "egv-sim-showcase/10",
+   "fingerprint": "f7cc5c70",
+   "objects": 8,
+   "agents": 1,
+   "stacked": 3,
+   "rollouts": 4,
+   "bytes": 213797
+  }
+ ]
+}

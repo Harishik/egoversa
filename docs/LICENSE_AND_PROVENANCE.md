@@ -9,7 +9,8 @@ explicit permission from the upstream authors before commercial use.
 | Component | Licence |
 |---|---|
 | Qwen/Qwen3.5-0.8B | Apache 2.0 |
-| EgoVersa scenes, images, labels, code | MIT (this repository) |
+| EgoVersa scenes, images, labels, code (procedural and MuJoCo) | MIT (this repository) |
+| MuJoCo simulator (used to generate and label EgoVersa-Sim data; not redistributed) | Apache 2.0 |
 | Fonts, npm and Python dependencies | their own licences |
 
 Runs `baseline_0`, `A_geometry`, `A_geometry_vision`, `D_data_matched`, `E_quantized` and

@@ -8,12 +8,17 @@ import { useStudio, type Workspace } from './store/useStudio';
 const SceneLab = lazy(() => import('./components/workspaces/SceneLab').then((m) => ({ default: m.SceneLab })));
 const QuestionArena = lazy(() => import('./components/workspaces/QuestionArena').then((m) => ({ default: m.QuestionArena })));
 const Benchmark = lazy(() => import('./components/workspaces/Benchmark').then((m) => ({ default: m.Benchmark })));
+const PhysicsLab = lazy(() => import('./components/workspaces/PhysicsLab').then((m) => ({ default: m.PhysicsLab })));
 const Models = lazy(() => import('./components/workspaces/Models').then((m) => ({ default: m.Models })));
 
 const NAV: { id: Workspace; label: string; key: string; blurb: string; icon: ReactNode }[] = [
   {
     id: 'lab', label: 'Scene Lab', key: 'L', blurb: 'Build a world and place the viewer',
     icon: <path d="M12 3 3 8l9 5 9-5-9-5Zm-9 9 9 5 9-5M3 16l9 5 9-5" />,
+  },
+  {
+    id: 'physics', label: 'Physics Lab', key: 'P', blurb: 'MuJoCo scenes and what-if rollouts',
+    icon: <path d="M12 3v5m0 0a4 4 0 1 1 0 8 4 4 0 0 1 0-8Zm-7 13h14M7 21h10" />,
   },
   {
     id: 'arena', label: 'Question Arena', key: 'Q', blurb: 'Answer viewpoint questions',
@@ -78,6 +83,7 @@ function useGlobalKeys() {
           case 'q': s.setWorkspace('arena'); return true;
           case 'b': s.setWorkspace('bench'); return true;
           case 'm': s.setWorkspace('models'); return true;
+          case 'p': s.setWorkspace('physics'); return true;
           case '?': s.setAboutOpen(true); return true;
           default: return false;
         }
@@ -139,18 +145,22 @@ export default function App() {
         <div className="hidden lg:mt-auto lg:block">
           <button className="btn btn-ghost w-full justify-start" onClick={() => { setHeroSeen(true); setDemoStep(0); }}>Guided tour</button>
           <button className="btn btn-ghost w-full justify-start" onClick={() => setAboutOpen(true)} data-testid="open-about">About and methods</button>
-          <p className="mt-3 px-3 text-[11px] leading-relaxed text-dim">v0.2, independent prototype. Local-first: nothing leaves this browser.</p>
+          <p className="mt-3 px-3 text-[11px] leading-relaxed text-dim">v0.3, independent prototype. Local-first: nothing leaves this browser.</p>
         </div>
       </nav>
 
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <header className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1.5 px-4 pb-2 pt-3 lg:px-5">
           <h1 className="font-display text-[1.7rem] leading-none text-ink">{active.label}</h1>
-          <span className="chip"><span className="h-1.5 w-1.5 rounded-full bg-world" />{ENVIRONMENTS[spec.env].label}</span>
+          {workspace !== 'physics' && workspace !== 'models' && (
+            <>
+            <span className="chip"><span className="h-1.5 w-1.5 rounded-full bg-world" />{ENVIRONMENTS[spec.env].label}</span>
           <Tip side="bottom" text="Seed of the current scene. The fingerprint is a digest of every object transform; equal fingerprints mean identical worlds.">
             <span className="chip num" tabIndex={0}>{spec.seed} <span className="text-dim">#{fingerprint}</span></span>
           </Tip>
           <span className="chip num">{nObjects} objects</span>
+            </>
+          )}
           <span className="ml-auto flex gap-1.5 lg:hidden">
             <button className="btn" onClick={() => { setHeroSeen(true); setDemoStep(0); }}>Tour</button>
             <button className="btn" onClick={() => setAboutOpen(true)}>About</button>
@@ -160,6 +170,7 @@ export default function App() {
           <ErrorBoundary key={workspace}>
             <Suspense fallback={<Loading />}>
               {workspace === 'lab' && <SceneLab />}
+              {workspace === 'physics' && <PhysicsLab />}
               {workspace === 'arena' && <QuestionArena />}
               {workspace === 'bench' && <Benchmark />}
               {workspace === 'models' && <Models />}

@@ -1,4 +1,5 @@
-# Research environment. Intel macOS needs conda-forge for PyTorch >= 2.6 (PyPI stops at 2.2.2 for osx-64).
+# Research environment. Intel macOS needs conda-forge for PyTorch >= 2.6 (PyPI stops at 2.2.2 for osx-64)
+# and for MuJoCo (no recent osx-64 wheels on PyPI). Rendering: MUJOCO_GL=cgl on macOS, egl on headless Linux.
 #   conda env create -p research/.conda -f research/environment.yml
 name: egoversa-research
 channels: [conda-forge]
@@ -6,6 +7,7 @@ dependencies:
   - python=3.11
   - pytorch=2.14.1
   - torchvision
+  - mujoco=3.16.0      # PyPI has no Intel-macOS wheels for recent MuJoCo; conda-forge does
   - pip
   - pip:
       - -r requirements.txt

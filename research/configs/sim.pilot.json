@@ -1,0 +1,7 @@
+{
+  "name": "egoversa-sim-pilot",
+  "version": "0.5.0",
+  "baseSeed": "egv-sim-pilot-1",
+  "scenes": { "test_iid": 40, "test_ood": 30, "val": 20, "train": 300 },
+  "perViewPerTask": 1
+}

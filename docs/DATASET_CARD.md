@@ -75,3 +75,29 @@ the small splits (see `manifest.json`).
 - One question family per relation per template. Paraphrase diversity is limited.
 - Visibility uses a 20×20 ray grid per object.
 - Abstention samples are a few percent of the data.
+
+# EgoVersa-Sim datasets (MuJoCo, v0.3)
+
+| | |
+|---|---|
+| Builder | `research/scripts/build_sim_dataset.py` (engine `egoversa-sim-0.3.0`, MuJoCo 3.16) |
+| Configs | `research/configs/sim.smoke.json`, `sim.pilot.json`, `sim.imagery.json` |
+| Format | Identical to the procedural datasets above (registry, model inputs, SFT files, manifest, holdout lock), so the same validator, evaluator and trainers apply |
+| Licence | MIT. Scenes are generated from MuJoCo primitives by this repository. MuJoCo itself is Apache 2.0 |
+
+Task types, in addition to the shared camera, observer, facing, abstention and two-view tasks:
+
+| Task | Answers | Label source |
+|---|---|---|
+| `support` | yes / no | normal contact forces in the settled state (≥ 20% of the object's weight) |
+| `counterfactual` | yes / no | forward simulation for 1.2 s after removing the named object (> 3 cm = yes, < 1 cm = no) |
+| `obs_lateral_eye` | left / right / unknown | the `obs_lateral` question verbatim, plus the robot's own head-camera render. Always paired with its plain twin |
+
+Splits follow the same protocol:
+- Disjoint seeds per split.
+- `test_ood` uses an unseen template family, backlit lighting, a wider camera range, and the object types
+  `egg` and `plate`, which are withheld everywhere else.
+- Test splits are built first and locked.
+
+`sim.imagery.json` is a test-only set holding nothing but paired observer left/right questions, for the
+imagery ablation.

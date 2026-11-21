@@ -33,6 +33,13 @@ await page.keyboard.press('v');
 await page.waitForTimeout(2500);
 await shot('03-viewer-eyes');
 await page.keyboard.press('v');
+await page.getByTestId('nav-physics').click();
+await page.getByTestId('physics-viewport').waitFor();
+await page.waitForTimeout(9000); // scanned-object and robot meshes stream in
+await shot('13-physics-lab');
+await page.getByTestId('rollout-button').nth(1).click().catch(() => page.getByTestId('rollout-button').first().click());
+await page.waitForTimeout(2600);
+await shot('14-physics-whatif');
 await page.getByTestId('nav-arena').click();
 await page.getByTestId('generate-questions').click();
 await page.waitForTimeout(1500);
@@ -40,6 +47,11 @@ await page.getByLabel('Question type').selectOption('obs_lateral');
 await page.waitForTimeout(800);
 await page.getByTestId('option-0').click();
 await page.waitForTimeout(800);
+if (!(await page.getByTestId('model-select').isEnabled())) {
+  console.log('model server not running (npm run model-server): stopping after the Physics Lab shots');
+  await browser.close();
+  process.exit(0);
+}
 await page.getByTestId('model-select').selectOption('qwen3.5-0.8b-base');
 if (await page.getByTestId('ask-model').count()) {
   await page.getByTestId('ask-model').click();

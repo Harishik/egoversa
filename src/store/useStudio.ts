@@ -7,7 +7,7 @@ import { generateScene, normalizeSpec } from '../scenes/generate';
 import { buildScenario, clampViewer, type Scenario } from '../scenes/scenario';
 import type { EnvId, LightingId, Scene, SceneSpec } from '../scenes/types';
 
-export type Workspace = 'lab' | 'arena' | 'bench' | 'models';
+export type Workspace = 'lab' | 'physics' | 'arena' | 'bench' | 'models';
 export type ViewMode = 'world' | 'viewer';
 
 const DEFAULT_SPEC: SceneSpec = { env: 'tabletop', seed: 'amber-harbor-42', objectCount: 8, occlusion: 0.5, distractors: 1, jitter: 0.5, agents: 1 };
