@@ -49,15 +49,16 @@
   <!-- 4 objective -->
   <rect x="868" y="110" width="296" height="250" rx="14" fill="#131A3B" stroke="#2A3368"/>
   <text x="888" y="142" font-size="15" font-weight="700" fill="#E9ECFF">4 · Hybrid objective</text>
-  <text x="888" y="172" font-size="12.5" fill="#E9ECFF" font-weight="600">Supervised (×0.3)</text>
-  <text x="888" y="190" font-size="12" fill="#A0A8D4">−log p(simulator answer)</text>
-  <text x="888" y="218" font-size="12.5" fill="#E9ECFF" font-weight="600">Exact expected reward (RL, ×1)</text>
-  <text x="888" y="236" font-size="12" fill="#A0A8D4">Σₐ p(a)·r(a): the quantity GRPO samples,</text>
-  <text x="888" y="252" font-size="12" fill="#A0A8D4">computed in closed form; abstention penalties</text>
-  <text x="888" y="280" font-size="12.5" fill="#E9ECFF" font-weight="600">KL to base (×0.02) · two-view consistency (×0.2)</text>
-  <text x="888" y="298" font-size="12" fill="#A0A8D4">same scene, two cameras, same answer</text>
-  <text x="888" y="330" font-size="12" fill="#F0B866">Ablation: the gain comes from the</text>
-  <text x="888" y="346" font-size="12" fill="#F0B866">supervised term (see results below)</text>
+  <text x="888" y="168" font-size="12.5" fill="#E9ECFF" font-weight="600">Supervised (×0.3)</text>
+  <text x="888" y="185" font-size="12" fill="#A0A8D4">−log p(simulator answer)</text>
+  <text x="888" y="211" font-size="12.5" fill="#E9ECFF" font-weight="600">Exact expected reward (RL, ×1)</text>
+  <text x="888" y="228" font-size="12" fill="#A0A8D4">Σₐ p(a)·r(a), what GRPO samples,</text>
+  <text x="888" y="244" font-size="12" fill="#A0A8D4">here computed in closed form</text>
+  <text x="888" y="270" font-size="12.5" fill="#E9ECFF" font-weight="600">KL to base (×0.02)</text>
+  <text x="888" y="292" font-size="12.5" fill="#E9ECFF" font-weight="600">Two-view consistency (×0.2)</text>
+  <text x="888" y="309" font-size="12" fill="#A0A8D4">same scene, two cameras, one answer</text>
+  <text x="888" y="333" font-size="12" fill="#F0B866">Ablation: the gain comes from</text>
+  <text x="888" y="349" font-size="12" fill="#F0B866">the supervised term (see results)</text>
 
   <path d="M266 235 H296" stroke="#8A91B4" stroke-width="2" marker-end="url(#ar)"/>
   <path d="M550 235 H580" stroke="#3987e5" stroke-width="2" marker-end="url(#ab)"/>
