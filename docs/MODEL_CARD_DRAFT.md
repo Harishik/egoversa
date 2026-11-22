@@ -1,7 +1,7 @@
 # Model card (draft): EgoVersa-Spatial-1B
 
-> **Status: no trained weights exist yet.** This card describes the intended model and the measured
-> base it starts from. Every result field marked *pending* stays empty until a real run fills it.
+> **Status: one trained adapter exists** (`research/runs/cpu_epo_v05_k6/adapter`, 29 MB, not committed; rebuild
+> it with the command in README). It was trained on CPU on the MuJoCo pilot. The results below are measured.
 
 | | |
 |---|---|
@@ -24,10 +24,20 @@
 
 Per-task results and the answer-collapse analysis are in EXPERIMENTS.md E4.
 
-## Fine-tuned student
+## Fine-tuned student (measured)
 
-*Pending.* Fill only from `research/runs/<run>/run_summary.json` and an evaluation file in
-`research/results/`.
+Run `cpu_epo_v05_k6`: LoRA r = 16 (α 32) on decoder layers 6–23, 7.65 M trainable parameters. Trained on CPU from
+frozen-trunk caches with the hybrid objective (supervised ×0.3, exact expected reward ×1, KL ×0.02,
+consistency ×0.2). 1,941 task-balanced items from egoversa-sim-pilot v0.5.0, 2 epochs, lr 1e-4,
+images ≤ 384 px. Summary: `research/results/cpu_training_summary.json`.
+
+| Split | n | majority | base | EgoVersa-Spatial | McNemar p |
+|---|---|---|---|---|---|
+| test_iid | 724 | 55.0% | 57.7% | **66.3%** | 0.0004 |
+| test_ood (4 held-out objects) | 573 | 53.2% | 53.1% | **63.9%** | 0.00002 |
+
+The ablation shows the gain comes from the supervised term; the RL term on its own collapses (EXPERIMENTS.md
+E6). Robot-frame relations without the robot's view, and abstention, did not improve.
 
 ## Known risks
 

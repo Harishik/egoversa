@@ -60,6 +60,7 @@ def main() -> int:
     ap.add_argument("--accum", type=int, default=8)
     ap.add_argument("--beta-kl", type=float, default=0.02)
     ap.add_argument("--gamma-ce", type=float, default=0.3)
+    ap.add_argument("--alpha-rl", type=float, default=1.0, help="weight of the exact expected-reward (RL) term; 0 = supervised only")
     ap.add_argument("--lambda-consistency", type=float, default=0.2)
     ap.add_argument("--max-side", type=int, help="downscale images so the longer side is at most this (applies to every split)")
     ap.add_argument("--threads", type=int, default=8)
@@ -67,11 +68,13 @@ def main() -> int:
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--train-limit", type=int, help="task-stratified subsample of the training items (consistency partners kept together)")
     ap.add_argument("--val-limit", type=int, default=120)
+    ap.add_argument("--eval-only", action="store_true", help="skip training; evaluate the adapter already saved in --out/adapter")
     ap.add_argument("--tasks", nargs="*", help="restrict training and evaluation to these task types (ablations)")
     ap.add_argument("--no-balanced", dest="balanced", action="store_false",
                     help="draw optimiser batches at random instead of one task per batch with labels in equal shares")
     a = ap.parse_args()
 
+    sys.stdout.reconfigure(line_buffering=True)
     import torch
     from transformers import AutoModelForMultimodalLM, AutoProcessor
     from peft import LoraConfig, get_peft_model
@@ -131,17 +134,26 @@ def main() -> int:
     layer_re = "|".join(str(i) for i in range(a.cut, L))
     cfg = LoraConfig(r=a.rank, lora_alpha=2 * a.rank, lora_dropout=0.05, bias="none",
                      target_modules=rf".*language_model\.layers\.({layer_re})\.(self_attn\.(q_proj|k_proj|v_proj|o_proj)|linear_attn\.(in_proj_qkv|in_proj_z|out_proj)|mlp\.(gate_proj|up_proj|down_proj))")
-    peft_model = get_peft_model(model, cfg)
+    if a.eval_only:
+        from peft import PeftModel
+        peft_model = PeftModel.from_pretrained(model, str(out / "adapter"), torch_device="cpu")
+    else:
+        peft_model = get_peft_model(model, cfg)
     n_train = sum(p.numel() for p in peft_model.parameters() if p.requires_grad)
     print(f"stage 2: LoRA r={a.rank} on layers {a.cut}..{L - 1}: {n_train / 1e6:.2f}M trainable parameters")
-    opt = torch.optim.AdamW([p for p in peft_model.parameters() if p.requires_grad], lr=a.lr, weight_decay=0.0)
+    opt = None if a.eval_only else torch.optim.AdamW([p for p in peft_model.parameters() if p.requires_grad], lr=a.lr, weight_decay=0.0)
 
     caches = {}
 
-    def cache(sid):
-        if sid not in caches:
-            caches[sid] = load_cache(cache_dir / f"{sid}.k{a.cut}.pt")
-        return caches[sid]
+    def cache(sid, keep=True):
+        """Training items stay in memory (re-read every epoch); evaluation items are read from disk and dropped,
+        which keeps resident memory near the training set's size instead of the whole cache."""
+        if sid in caches:
+            return caches[sid]
+        c = load_cache(cache_dir / f"{sid}.k{a.cut}.pt")
+        if keep:
+            caches[sid] = c
+        return c
 
     partners = defaultdict(list)
     for r in train:
@@ -159,8 +171,10 @@ def main() -> int:
             peft_model.eval()
             for s, rows in split_rows.items():
                 preds = {}
-                for r in rows:
-                    lg = top_forward(tm, head, cache(r["sample_id"]), a.cut)
+                for idx, r in enumerate(rows):
+                    if idx and idx % 200 == 0:
+                        print(f"  eval {'tuned' if adapter else 'base'} {s}: {idx}/{len(rows)}")
+                    lg = top_forward(tm, head, cache(r["sample_id"], keep=False), a.cut)
                     # model-visible view has no options; options are parsed from the prompt's answer instruction
                     opts = parse_options(r["prompt"])
                     pa, p_other = answer_distribution(lg, opts, tok)
@@ -172,7 +186,7 @@ def main() -> int:
     total_steps = a.epochs * len(usable)  # items; optimiser steps ~= total_steps / accum
     step, log = 0, []
     t_train = time.time()
-    for ep in range(a.epochs):
+    for ep in range(0 if a.eval_only else a.epochs):
         if a.balanced:
             batches = balanced_batches(usable, a.accum, random)
         else:
@@ -188,7 +202,7 @@ def main() -> int:
         for j, r in enumerate(order):
             o = r["oracle"]
             lg = top_forward(tm, head, cache(r["sample_id"]), a.cut)
-            loss, st = epo_loss(lg, o["options"], o["answer"], o["answerable"], tok, cache(r["sample_id"]).ref_logp, a.beta_kl, a.gamma_ce)
+            loss, st = epo_loss(lg, o["options"], o["answer"], o["answerable"], tok, cache(r["sample_id"]).ref_logp, a.beta_kl, a.gamma_ce, rl_coef=a.alpha_rl)
             k = consistency_key(r)
             mates = [m for m in partners.get(k, []) if m["sample_id"] != r["sample_id"]] if k else []
             if mates and a.lambda_consistency > 0:
@@ -221,14 +235,16 @@ def main() -> int:
             print(f"epoch {ep}: val constrained accuracy {100 * acc:.1f}%")
             log.append({"epoch": ep, "val_acc": acc})
     train_s = time.time() - t_train
-    peft_model.save_pretrained(out / "adapter")
+    caches.clear()  # free the training cache before evaluation
+    if not a.eval_only:
+        peft_model.save_pretrained(out / "adapter")
     print(f"stage 2 done: {train_s:.0f}s, adapter -> {out / 'adapter'}")
 
     # ---- stage 3: paired evaluation (answers are read only now) ----
     base_preds = evaluate(evals, adapter=False)
     tuned_preds = evaluate(evals, adapter=True)
     report = {"format": "egoversa.cpu-train", "base": a.base, "cut": a.cut, "rank": a.rank, "epochs": a.epochs, "lr": a.lr,
-              "beta_kl": a.beta_kl, "gamma_ce": a.gamma_ce, "lambda_consistency": a.lambda_consistency, "max_side": a.max_side,
+              "alpha_rl": a.alpha_rl, "beta_kl": a.beta_kl, "gamma_ce": a.gamma_ce, "lambda_consistency": a.lambda_consistency, "max_side": a.max_side,
               "n_train": len(usable), "trainable_params": n_train, "cache_seconds": cache_s, "train_seconds": train_s,
               "threads": a.threads, "log": log, "splits": {}}
     for s in evals:

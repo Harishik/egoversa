@@ -1,0 +1,659 @@
+{
+ "dataset": "egoversa-sim-pilot v0.5.0 (locked test_iid / test_ood)",
+ "metric": "constrained accuracy (argmax over the admissible answers)",
+ "runs": {
+  "full": {
+   "dir": "cpu_epo_v05_k6",
+   "cut": 6,
+   "epochs": 3,
+   "lr": 0.0002,
+   "alpha_rl": 1.0,
+   "gamma_ce": 0.3,
+   "beta_kl": 0.02,
+   "lambda_consistency": 0.2,
+   "n_train": 1941,
+   "trainable_params": 0,
+   "cache_seconds": 0.10391497611999512,
+   "train_seconds": 4.76837158203125e-06,
+   "splits": {
+    "val": {
+     "n": 120,
+     "majority": 0.5666666666666667,
+     "base": 0.5083333333333333,
+     "tuned": 0.6583333333333333,
+     "base_free": 0.39166666666666666,
+     "tuned_free": 0.6333333333333333,
+     "only_tuned": 29,
+     "only_base": 11,
+     "p": 0.006426576095691416,
+     "per_task": {
+      "abstain": {
+       "n": 5,
+       "majority": 1.0,
+       "base": 0.0,
+       "tuned": 0.0
+      },
+      "counterfactual": {
+       "n": 11,
+       "majority": 0.5454545454545454,
+       "base": 0.36363636363636365,
+       "tuned": 0.8181818181818182
+      },
+      "depth": {
+       "n": 14,
+       "majority": 0.5,
+       "base": 0.5714285714285714,
+       "tuned": 0.7142857142857143
+      },
+      "facing": {
+       "n": 6,
+       "majority": 0.6666666666666666,
+       "base": 0.5,
+       "tuned": 1.0
+      },
+      "lateral": {
+       "n": 12,
+       "majority": 0.5833333333333334,
+       "base": 0.5,
+       "tuned": 0.6666666666666666
+      },
+      "mv_best_view": {
+       "n": 7,
+       "majority": 0.42857142857142855,
+       "base": 0.5714285714285714,
+       "tuned": 0.5714285714285714
+      },
+      "mv_camera_motion": {
+       "n": 5,
+       "majority": 0.4,
+       "base": 0.6,
+       "tuned": 1.0
+      },
+      "obs_frontback": {
+       "n": 6,
+       "majority": 0.5,
+       "base": 0.5,
+       "tuned": 0.5
+      },
+      "obs_lateral": {
+       "n": 13,
+       "majority": 0.46153846153846156,
+       "base": 0.46153846153846156,
+       "tuned": 0.23076923076923078
+      },
+      "obs_lateral_eye": {
+       "n": 7,
+       "majority": 0.7142857142857143,
+       "base": 0.42857142857142855,
+       "tuned": 1.0
+      },
+      "support": {
+       "n": 13,
+       "majority": 0.5384615384615384,
+       "base": 0.6153846153846154,
+       "tuned": 1.0
+      },
+      "vertical": {
+       "n": 7,
+       "majority": 0.7142857142857143,
+       "base": 0.5714285714285714,
+       "tuned": 0.5714285714285714
+      },
+      "visibility": {
+       "n": 14,
+       "majority": 0.5714285714285714,
+       "base": 0.6428571428571429,
+       "tuned": 0.5
+      }
+     }
+    },
+    "test_iid": {
+     "n": 724,
+     "majority": 0.5497237569060773,
+     "base": 0.5773480662983426,
+     "tuned": 0.6629834254143646,
+     "base_free": 0.48480662983425415,
+     "tuned_free": 0.6325966850828729,
+     "only_tuned": 181,
+     "only_base": 119,
+     "p": 0.00041062141299336657,
+     "per_task": {
+      "abstain": {
+       "n": 14,
+       "majority": 1.0,
+       "base": 0.0,
+       "tuned": 0.0
+      },
+      "counterfactual": {
+       "n": 66,
+       "majority": 0.5151515151515151,
+       "base": 0.5454545454545454,
+       "tuned": 0.5303030303030303
+      },
+      "depth": {
+       "n": 78,
+       "majority": 0.5,
+       "base": 0.47435897435897434,
+       "tuned": 0.717948717948718
+      },
+      "facing": {
+       "n": 30,
+       "majority": 0.8333333333333334,
+       "base": 0.8333333333333334,
+       "tuned": 0.8
+      },
+      "lateral": {
+       "n": 78,
+       "majority": 0.5,
+       "base": 0.5769230769230769,
+       "tuned": 0.8589743589743589
+      },
+      "mv_best_view": {
+       "n": 20,
+       "majority": 0.4,
+       "base": 0.65,
+       "tuned": 0.5
+      },
+      "mv_camera_motion": {
+       "n": 40,
+       "majority": 0.525,
+       "base": 0.475,
+       "tuned": 0.7
+      },
+      "obs_frontback": {
+       "n": 56,
+       "majority": 0.6964285714285714,
+       "base": 0.6964285714285714,
+       "tuned": 0.625
+      },
+      "obs_lateral": {
+       "n": 85,
+       "majority": 0.49411764705882355,
+       "base": 0.5058823529411764,
+       "tuned": 0.38823529411764707
+      },
+      "obs_lateral_eye": {
+       "n": 66,
+       "majority": 0.5,
+       "base": 0.6363636363636364,
+       "tuned": 0.8787878787878788
+      },
+      "support": {
+       "n": 80,
+       "majority": 0.5,
+       "base": 0.675,
+       "tuned": 0.7875
+      },
+      "vertical": {
+       "n": 31,
+       "majority": 0.4838709677419355,
+       "base": 0.45161290322580644,
+       "tuned": 0.5806451612903226
+      },
+      "visibility": {
+       "n": 80,
+       "majority": 0.6125,
+       "base": 0.6375,
+       "tuned": 0.6625
+      }
+     }
+    },
+    "test_ood": {
+     "n": 573,
+     "majority": 0.5322862129144852,
+     "base": 0.5305410122164049,
+     "tuned": 0.6387434554973822,
+     "base_free": 0.44502617801047123,
+     "tuned_free": 0.6038394415357766,
+     "only_tuned": 136,
+     "only_base": 74,
+     "p": 2.2530245105886636e-05,
+     "per_task": {
+      "abstain": {
+       "n": 15,
+       "majority": 1.0,
+       "base": 0.0,
+       "tuned": 0.0
+      },
+      "counterfactual": {
+       "n": 46,
+       "majority": 0.6304347826086957,
+       "base": 0.3695652173913043,
+       "tuned": 0.391304347826087
+      },
+      "depth": {
+       "n": 60,
+       "majority": 0.5,
+       "base": 0.5166666666666667,
+       "tuned": 0.6
+      },
+      "facing": {
+       "n": 21,
+       "majority": 0.7142857142857143,
+       "base": 0.7142857142857143,
+       "tuned": 0.7619047619047619
+      },
+      "lateral": {
+       "n": 59,
+       "majority": 0.4915254237288136,
+       "base": 0.6949152542372882,
+       "tuned": 0.7966101694915254
+      },
+      "mv_best_view": {
+       "n": 22,
+       "majority": 0.5,
+       "base": 0.5,
+       "tuned": 0.7272727272727273
+      },
+      "mv_camera_motion": {
+       "n": 30,
+       "majority": 0.4,
+       "base": 0.6,
+       "tuned": 0.8
+      },
+      "obs_frontback": {
+       "n": 46,
+       "majority": 0.5869565217391305,
+       "base": 0.5869565217391305,
+       "tuned": 0.43478260869565216
+      },
+      "obs_lateral": {
+       "n": 69,
+       "majority": 0.4927536231884058,
+       "base": 0.4927536231884058,
+       "tuned": 0.391304347826087
+      },
+      "obs_lateral_eye": {
+       "n": 49,
+       "majority": 0.4489795918367347,
+       "base": 0.5714285714285714,
+       "tuned": 0.8367346938775511
+      },
+      "support": {
+       "n": 60,
+       "majority": 0.5,
+       "base": 0.5,
+       "tuned": 0.85
+      },
+      "vertical": {
+       "n": 36,
+       "majority": 0.5,
+       "base": 0.5277777777777778,
+       "tuned": 0.6666666666666666
+      },
+      "visibility": {
+       "n": 60,
+       "majority": 0.55,
+       "base": 0.55,
+       "tuned": 0.7666666666666667
+      }
+     }
+    }
+   }
+  },
+  "hybrid": {
+   "dir": "cap_lateral_k6",
+   "cut": 6,
+   "epochs": 3,
+   "lr": 0.0001,
+   "alpha_rl": 1.0,
+   "gamma_ce": 0.3,
+   "beta_kl": 0.02,
+   "lambda_consistency": 0.2,
+   "n_train": 501,
+   "trainable_params": 7651328,
+   "cache_seconds": 1457.3286628723145,
+   "train_seconds": 4370.789268255234,
+   "splits": {
+    "val": {
+     "n": 67,
+     "majority": 0.47761194029850745,
+     "base": 0.5223880597014925,
+     "tuned": 0.6417910447761194,
+     "base_free": 0.4925373134328358,
+     "tuned_free": 0.6417910447761194,
+     "only_tuned": 17,
+     "only_base": 9,
+     "p": 0.16863754391670227,
+     "per_task": {
+      "lateral": {
+       "n": 36,
+       "majority": 0.5,
+       "base": 0.6111111111111112,
+       "tuned": 0.7777777777777778
+      },
+      "obs_lateral": {
+       "n": 31,
+       "majority": 0.45161290322580644,
+       "base": 0.41935483870967744,
+       "tuned": 0.4838709677419355
+      }
+     }
+    },
+    "test_iid": {
+     "n": 163,
+     "majority": 0.49693251533742333,
+     "base": 0.5398773006134969,
+     "tuned": 0.6932515337423313,
+     "base_free": 0.5337423312883436,
+     "tuned_free": 0.6932515337423313,
+     "only_tuned": 55,
+     "only_base": 30,
+     "p": 0.008836205876094518,
+     "per_task": {
+      "lateral": {
+       "n": 78,
+       "majority": 0.5,
+       "base": 0.5769230769230769,
+       "tuned": 0.782051282051282
+      },
+      "obs_lateral": {
+       "n": 85,
+       "majority": 0.49411764705882355,
+       "base": 0.5058823529411764,
+       "tuned": 0.611764705882353
+      }
+     }
+    },
+    "test_ood": {
+     "n": 128,
+     "majority": 0.4921875,
+     "base": 0.5859375,
+     "tuned": 0.703125,
+     "base_free": 0.5859375,
+     "tuned_free": 0.703125,
+     "only_tuned": 26,
+     "only_base": 11,
+     "p": 0.020073851919732988,
+     "per_task": {
+      "lateral": {
+       "n": 59,
+       "majority": 0.4915254237288136,
+       "base": 0.6949152542372882,
+       "tuned": 0.8813559322033898
+      },
+      "obs_lateral": {
+       "n": 69,
+       "majority": 0.4927536231884058,
+       "base": 0.4927536231884058,
+       "tuned": 0.5507246376811594
+      }
+     }
+    }
+   }
+  },
+  "hybrid_k16": {
+   "dir": "cap_lateral_k16",
+   "cut": 16,
+   "epochs": 3,
+   "lr": 0.0001,
+   "alpha_rl": 1.0,
+   "gamma_ce": 0.3,
+   "beta_kl": 0.02,
+   "lambda_consistency": 0.2,
+   "n_train": 501,
+   "trainable_params": 3407872,
+   "cache_seconds": 1460.6940610408783,
+   "train_seconds": 2087.390247106552,
+   "splits": {
+    "val": {
+     "n": 67,
+     "majority": 0.47761194029850745,
+     "base": 0.5223880597014925,
+     "tuned": 0.5522388059701493,
+     "base_free": 0.4925373134328358,
+     "tuned_free": 0.5522388059701493,
+     "only_tuned": 11,
+     "only_base": 9,
+     "p": 0.8238029479980469,
+     "per_task": {
+      "lateral": {
+       "n": 36,
+       "majority": 0.5,
+       "base": 0.6111111111111112,
+       "tuned": 0.6944444444444444
+      },
+      "obs_lateral": {
+       "n": 31,
+       "majority": 0.45161290322580644,
+       "base": 0.41935483870967744,
+       "tuned": 0.3870967741935484
+      }
+     }
+    },
+    "test_iid": {
+     "n": 163,
+     "majority": 0.49693251533742333,
+     "base": 0.5398773006134969,
+     "tuned": 0.6257668711656442,
+     "base_free": 0.5337423312883436,
+     "tuned_free": 0.6257668711656442,
+     "only_tuned": 46,
+     "only_base": 32,
+     "p": 0.14053828626952244,
+     "per_task": {
+      "lateral": {
+       "n": 78,
+       "majority": 0.5,
+       "base": 0.5769230769230769,
+       "tuned": 0.8333333333333334
+      },
+      "obs_lateral": {
+       "n": 85,
+       "majority": 0.49411764705882355,
+       "base": 0.5058823529411764,
+       "tuned": 0.43529411764705883
+      }
+     }
+    },
+    "test_ood": {
+     "n": 128,
+     "majority": 0.4921875,
+     "base": 0.5859375,
+     "tuned": 0.5625,
+     "base_free": 0.5859375,
+     "tuned_free": 0.5625,
+     "only_tuned": 16,
+     "only_base": 19,
+     "p": 0.7358788008568808,
+     "per_task": {
+      "lateral": {
+       "n": 59,
+       "majority": 0.4915254237288136,
+       "base": 0.6949152542372882,
+       "tuned": 0.6271186440677966
+      },
+      "obs_lateral": {
+       "n": 69,
+       "majority": 0.4927536231884058,
+       "base": 0.4927536231884058,
+       "tuned": 0.5072463768115942
+      }
+     }
+    }
+   }
+  },
+  "rl_only": {
+   "dir": "abl_rl_only",
+   "cut": 6,
+   "epochs": 3,
+   "lr": 0.0001,
+   "alpha_rl": 1.0,
+   "gamma_ce": 0.0,
+   "beta_kl": 0.02,
+   "lambda_consistency": 0.2,
+   "n_train": 501,
+   "trainable_params": 7651328,
+   "cache_seconds": 0.329085111618042,
+   "train_seconds": 8057.017071962357,
+   "splits": {
+    "val": {
+     "n": 67,
+     "majority": 0.47761194029850745,
+     "base": 0.5223880597014925,
+     "tuned": 0.47761194029850745,
+     "base_free": 0.4925373134328358,
+     "tuned_free": 0.47761194029850745,
+     "only_tuned": 5,
+     "only_base": 8,
+     "p": 0.5810546875,
+     "per_task": {
+      "lateral": {
+       "n": 36,
+       "majority": 0.5,
+       "base": 0.6111111111111112,
+       "tuned": 0.5
+      },
+      "obs_lateral": {
+       "n": 31,
+       "majority": 0.45161290322580644,
+       "base": 0.41935483870967744,
+       "tuned": 0.45161290322580644
+      }
+     }
+    },
+    "test_iid": {
+     "n": 163,
+     "majority": 0.49693251533742333,
+     "base": 0.5398773006134969,
+     "tuned": 0.49693251533742333,
+     "base_free": 0.5337423312883436,
+     "tuned_free": 0.49693251533742333,
+     "only_tuned": 4,
+     "only_base": 11,
+     "p": 0.11846923828125,
+     "per_task": {
+      "lateral": {
+       "n": 78,
+       "majority": 0.5,
+       "base": 0.5769230769230769,
+       "tuned": 0.5
+      },
+      "obs_lateral": {
+       "n": 85,
+       "majority": 0.49411764705882355,
+       "base": 0.5058823529411764,
+       "tuned": 0.49411764705882355
+      }
+     }
+    },
+    "test_ood": {
+     "n": 128,
+     "majority": 0.4921875,
+     "base": 0.5859375,
+     "tuned": 0.5,
+     "base_free": 0.5859375,
+     "tuned_free": 0.5,
+     "only_tuned": 16,
+     "only_base": 27,
+     "p": 0.12628947438543037,
+     "per_task": {
+      "lateral": {
+       "n": 59,
+       "majority": 0.4915254237288136,
+       "base": 0.6949152542372882,
+       "tuned": 0.5084745762711864
+      },
+      "obs_lateral": {
+       "n": 69,
+       "majority": 0.4927536231884058,
+       "base": 0.4927536231884058,
+       "tuned": 0.4927536231884058
+      }
+     }
+    }
+   }
+  },
+  "sft_only": {
+   "dir": "abl_sft_only",
+   "cut": 6,
+   "epochs": 3,
+   "lr": 0.0001,
+   "alpha_rl": 0.0,
+   "gamma_ce": 1.0,
+   "beta_kl": 0.02,
+   "lambda_consistency": 0.0,
+   "n_train": 501,
+   "trainable_params": 7651328,
+   "cache_seconds": 0.06870794296264648,
+   "train_seconds": 5562.109271764755,
+   "splits": {
+    "val": {
+     "n": 67,
+     "majority": 0.47761194029850745,
+     "base": 0.5223880597014925,
+     "tuned": 0.6567164179104478,
+     "base_free": 0.4925373134328358,
+     "tuned_free": 0.6567164179104478,
+     "only_tuned": 21,
+     "only_base": 12,
+     "p": 0.16275565745308995,
+     "per_task": {
+      "lateral": {
+       "n": 36,
+       "majority": 0.5,
+       "base": 0.6111111111111112,
+       "tuned": 0.7777777777777778
+      },
+      "obs_lateral": {
+       "n": 31,
+       "majority": 0.45161290322580644,
+       "base": 0.41935483870967744,
+       "tuned": 0.5161290322580645
+      }
+     }
+    },
+    "test_iid": {
+     "n": 163,
+     "majority": 0.49693251533742333,
+     "base": 0.5398773006134969,
+     "tuned": 0.7055214723926381,
+     "base_free": 0.5337423312883436,
+     "tuned_free": 0.6993865030674846,
+     "only_tuned": 58,
+     "only_base": 31,
+     "p": 0.005544959035344678,
+     "per_task": {
+      "lateral": {
+       "n": 78,
+       "majority": 0.5,
+       "base": 0.5769230769230769,
+       "tuned": 0.8076923076923077
+      },
+      "obs_lateral": {
+       "n": 85,
+       "majority": 0.49411764705882355,
+       "base": 0.5058823529411764,
+       "tuned": 0.611764705882353
+      }
+     }
+    },
+    "test_ood": {
+     "n": 128,
+     "majority": 0.4921875,
+     "base": 0.5859375,
+     "tuned": 0.703125,
+     "base_free": 0.5859375,
+     "tuned_free": 0.703125,
+     "only_tuned": 25,
+     "only_base": 10,
+     "p": 0.01667384780012071,
+     "per_task": {
+      "lateral": {
+       "n": 59,
+       "majority": 0.4915254237288136,
+       "base": 0.6949152542372882,
+       "tuned": 0.847457627118644
+      },
+      "obs_lateral": {
+       "n": 69,
+       "majority": 0.4927536231884058,
+       "base": 0.4927536231884058,
+       "tuned": 0.5797101449275363
+      }
+     }
+    }
+   }
+  }
+ }
+}

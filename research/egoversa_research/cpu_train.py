@@ -148,7 +148,7 @@ def rewards_for(options: list[str], gold: str, answerable: bool) -> list[float]:
     return r
 
 
-def epo_loss(logits, options, gold, answerable, tok, ref_logp, kl_coef: float, ce_coef: float, r_other: float = -0.1):
+def epo_loss(logits, options, gold, answerable, tok, ref_logp, kl_coef: float, ce_coef: float, r_other: float = -0.1, rl_coef: float = 1.0):
     pa, p_other = answer_distribution(logits, options, tok)
     r = torch.tensor(rewards_for(options, gold, answerable), dtype=pa.dtype)
     expected = (pa * r).sum() + p_other * r_other
@@ -159,7 +159,7 @@ def epo_loss(logits, options, gold, answerable, tok, ref_logp, kl_coef: float, c
     qr = torch.cat([qr, (1 - qr.sum()).clamp_min(0).view(1)]) + 1e-8
     kl = (q * (q.log() - qr.log())).sum()
     ce = -torch.log(pa[options.index(gold)] + 1e-8)
-    loss = -expected + kl_coef * kl + ce_coef * ce
+    loss = -rl_coef * expected + kl_coef * kl + ce_coef * ce
     return loss, {"expected_reward": expected.item(), "p_gold": pa[options.index(gold)].item(), "p_other": p_other.item(), "kl": kl.item()}
 
 

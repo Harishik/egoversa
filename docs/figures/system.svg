@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 470" font-family="Manrope, Inter, system-ui, -apple-system, Segoe UI, sans-serif" role="img" aria-label="How EgoVersa-Spatial is trained on a CPU">
+  <title>How EgoVersa-Spatial is trained on a CPU</title>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#8A91B4"/></marker>
+    <marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#3987e5"/></marker>
+  </defs>
+  <rect width="1200" height="470" rx="20" fill="#0A0E22"/>
+  <text x="36" y="48" font-size="22" font-weight="700" fill="#E9ECFF">How EgoVersa-Spatial is trained, on a CPU</text>
+  <text x="36" y="74" font-size="13.5" fill="#A0A8D4">Qwen3.5-0.8B + LoRA. The physics simulator writes every label; the frozen part of the model runs once per example; only the top runs during training.</text>
+
+  <!-- 1 simulator -->
+  <rect x="36" y="110" width="230" height="250" rx="14" fill="#131A3B" stroke="#2A3368"/>
+  <text x="56" y="142" font-size="15" font-weight="700" fill="#E9ECFF">1 · MuJoCo scene</text>
+  <text x="56" y="168" font-size="12.5" fill="#A0A8D4">Real scanned objects (GSO),</text>
+  <text x="56" y="186" font-size="12.5" fill="#A0A8D4">Unitree G1 + Stretch 3 robots,</text>
+  <text x="56" y="204" font-size="12.5" fill="#A0A8D4">dropped and settled by physics</text>
+  <text x="56" y="236" font-size="12.5" fill="#E9ECFF" font-weight="600">Exact answer from the sim:</text>
+  <text x="56" y="256" font-size="12.5" fill="#A0A8D4">frames · segmentation masks ·</text>
+  <text x="56" y="274" font-size="12.5" fill="#A0A8D4">contact forces · removal rollouts</text>
+  <text x="56" y="306" font-size="12.5" fill="#E9ECFF" font-weight="600">Model sees only:</text>
+  <text x="56" y="326" font-size="12.5" fill="#A0A8D4">image(s) + question text</text>
+
+  <!-- 2 frozen trunk -->
+  <rect x="300" y="110" width="250" height="250" rx="14" fill="#131A3B" stroke="#2A3368"/>
+  <text x="320" y="142" font-size="15" font-weight="700" fill="#E9ECFF">2 · Frozen trunk, run once</text>
+  <rect x="320" y="160" width="210" height="40" rx="8" fill="#1C2550"/>
+  <text x="425" y="185" font-size="12.5" fill="#E9ECFF" text-anchor="middle">Vision encoder</text>
+  <rect x="320" y="208" width="210" height="40" rx="8" fill="#1C2550"/>
+  <text x="425" y="233" font-size="12.5" fill="#E9ECFF" text-anchor="middle">Decoder layers 0–5</text>
+  <rect x="320" y="262" width="210" height="44" rx="8" fill="none" stroke="#8A91B4" stroke-dasharray="4 4"/>
+  <text x="425" y="281" font-size="12.5" fill="#E9ECFF" text-anchor="middle">Saved to disk: hidden state,</text>
+  <text x="425" y="298" font-size="12.5" fill="#E9ECFF" text-anchor="middle">rotary embeddings, masks</text>
+  <text x="320" y="334" font-size="12" fill="#A0A8D4">2.0 s per example, paid once.</text>
+  <text x="320" y="350" font-size="12" fill="#A0A8D4">Resuming is exact (max |Δlogit| 6e-6).</text>
+
+  <!-- 3 trainable top -->
+  <rect x="584" y="110" width="250" height="250" rx="14" fill="#131A3B" stroke="#3987e5"/>
+  <text x="604" y="142" font-size="15" font-weight="700" fill="#E9ECFF">3 · Trainable top</text>
+  <rect x="604" y="160" width="210" height="88" rx="8" fill="#16305C"/>
+  <text x="709" y="190" font-size="12.5" fill="#E9ECFF" text-anchor="middle">Decoder layers 6–23</text>
+  <text x="709" y="208" font-size="12.5" fill="#E9ECFF" text-anchor="middle">+ LoRA r = 16</text>
+  <text x="709" y="230" font-size="12" fill="#A0A8D4" text-anchor="middle">7.65 M trainable parameters</text>
+  <rect x="604" y="262" width="210" height="44" rx="8" fill="#1C2550"/>
+  <text x="709" y="281" font-size="12.5" fill="#E9ECFF" text-anchor="middle">p(answer) over the admissible</text>
+  <text x="709" y="298" font-size="12.5" fill="#E9ECFF" text-anchor="middle">answers, from one forward pass</text>
+  <text x="604" y="334" font-size="12" fill="#A0A8D4">2.9 s per example with backward.</text>
+  <text x="604" y="350" font-size="12" fill="#A0A8D4">No vision tower, no sampling.</text>
+
+  <!-- 4 objective -->
+  <rect x="868" y="110" width="296" height="250" rx="14" fill="#131A3B" stroke="#2A3368"/>
+  <text x="888" y="142" font-size="15" font-weight="700" fill="#E9ECFF">4 · Hybrid objective</text>
+  <text x="888" y="172" font-size="12.5" fill="#E9ECFF" font-weight="600">Supervised (×0.3)</text>
+  <text x="888" y="190" font-size="12" fill="#A0A8D4">−log p(simulator answer)</text>
+  <text x="888" y="218" font-size="12.5" fill="#E9ECFF" font-weight="600">Exact expected reward (RL, ×1)</text>
+  <text x="888" y="236" font-size="12" fill="#A0A8D4">Σₐ p(a)·r(a): the quantity GRPO samples,</text>
+  <text x="888" y="252" font-size="12" fill="#A0A8D4">computed in closed form; abstention penalties</text>
+  <text x="888" y="280" font-size="12.5" fill="#E9ECFF" font-weight="600">KL to base (×0.02) · two-view consistency (×0.2)</text>
+  <text x="888" y="298" font-size="12" fill="#A0A8D4">same scene, two cameras, same answer</text>
+  <text x="888" y="330" font-size="12" fill="#F0B866">Ablation: the gain comes from the</text>
+  <text x="888" y="346" font-size="12" fill="#F0B866">supervised term (see results below)</text>
+
+  <path d="M266 235 H296" stroke="#8A91B4" stroke-width="2" marker-end="url(#ar)"/>
+  <path d="M550 235 H580" stroke="#3987e5" stroke-width="2" marker-end="url(#ab)"/>
+  <path d="M834 235 H864" stroke="#3987e5" stroke-width="2" marker-end="url(#ab)"/>
+  <path d="M1016 362 V400 H709 V366" stroke="#3987e5" stroke-width="2" fill="none" marker-end="url(#ab)"/>
+  <text x="862" y="420" font-size="12" fill="#A0A8D4" text-anchor="middle">gradients update only the LoRA weights in layers 6–23</text>
+  <text x="36" y="450" font-size="12" fill="#6B739E">Evaluation uses the same caches with the adapter switched off (base) and on (ours), so every comparison is paired on identical items.</text>
+</svg>

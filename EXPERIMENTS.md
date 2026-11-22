@@ -233,6 +233,37 @@ relations from the layer-16 state.** It can memorise a few items, but it can nei
 This is a negative result and is kept as one. The next experiment moves the cut down (layer 6) on the
 rebalanced v0.5 data.
 
+**Run 3: our full system on all 13 tasks (v0.5 data, layer-6 cut, 1,941 train items, 2 epochs, balanced batches).**
+EgoVersa-Spatial is Qwen3.5-0.8B plus LoRA on layers 6–23 (7.65 M parameters), trained on CPU with the hybrid
+objective: exact expected simulator reward, 0.3 × supervised term, 0.02 × KL to base, and 0.2 × cross-view
+consistency. Constrained accuracy on the locked sets:
+
+| | model | test_iid (n = 724) | test_ood (n = 573) |
+|---|---|---|---|
+| baseline | majority answer per task (from train) | 55.0% | 53.2% |
+| baseline | base Qwen3.5-0.8B | 57.7% | 53.1% |
+| **ours** | **EgoVersa-Spatial (CPU, RL hybrid)** | **66.3%** | **63.9%** |
+| | only ours right / only base right | 181 / 119, p = 0.0004 | 136 / 74, p = 0.00002 |
+
+Free generation (the reply's first token, no answer list given to the model) moves the same way: test_iid
+48.5% → 63.3%, test_ood 44.5% → 60.4%.
+
+Per task (test_iid / test_ood, base → ours):
+- lateral: 57.7 → 85.9 / 69.5 → 79.7
+- depth: 47.4 → 71.8 / 51.7 → 60.0
+- support: 67.5 → 78.8 / 50.0 → 85.0
+- obs_lateral_eye (robot's own view attached): 63.6 → 87.9 / 57.1 → 83.7
+- camera motion: 47.5 → 70.0 / 60.0 → 80.0
+- visibility: 63.8 → 66.2 / 55.0 → 76.7
+- vertical: 45.2 → 58.1 / 52.8 → 66.7
+
+Where it fails:
+- obs_lateral without the robot's view: 50.6 → 38.8 / 49.3 → 39.1. It got worse. The same questions with the
+  robot's view attached rose to 84–88%, so the model learns to read a view but not to imagine one.
+- obs_frontback: 69.6 → 62.5 / 58.7 → 43.5.
+- counterfactual: flat (54.5 → 53.0 / 37.0 → 39.1).
+- abstention: 0% before and after. The model never answers "unknown".
+
 **Capacity ablation (v0.5 data, lateral + observer-lateral only, 501 train items, 3 epochs, balanced batches).**
 Same items, caches computed at two cut points, constrained accuracy:
 
@@ -249,6 +280,23 @@ The base model answers "left" to 148 of 163 iid items; the tuned model's answers
 split. Training costs 2.9 s/item with the layer-6 cut against 1.3 s with the layer-16 cut, and caching costs
 1.7 s/item either way. **Conclusion: the cut point is the capacity knob. Layer 6 learns transferable spatial
 relations on CPU; layer 16 does not.**
+
+**Objective ablation (same setup as the layer-6 capacity run: lateral + robot-lateral, 501 items, 3 epochs,
+same caches).** Only the loss changes.
+
+| objective | test_iid (n = 163) | test_ood (n = 128) |
+|---|---|---|
+| base (no training) | 54.0% | 58.6% |
+| RL reward only (α = 1, supervised 0, consistency 0.2) | 49.7% | 50.0% |
+| supervised only (α = 0, supervised 1, consistency 0) | **70.6%** (p = 0.006 vs base) | **70.3%** (p = 0.017) |
+| hybrid (α = 1, supervised 0.3, consistency 0.2) | 69.3% (p = 0.009) | **70.3%** (p = 0.020) |
+
+The reward-only model answers "left" to every one of the 67 + 163 + 128 evaluation items. Its training
+p(gold) settles at exactly 0.5 with expected reward 0.6, the value a constant answer earns on balanced
+batches. The exact expected reward is linear in p, so the reward-only objective has no incentive to leave
+that state when the features do not yet separate the classes. The supervised log-loss has the incentive.
+**On this data the measurable gain comes from the supervised term. The RL term neither helps nor hurts once
+it is added to the supervised term.**
 
 **Dataset flaws found by this run** (reported, not hidden):
 - `obs_frontback` is 100% "front" in every split, because realistic robots are posed facing the table.
