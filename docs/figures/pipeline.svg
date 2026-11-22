@@ -12,8 +12,9 @@
   <g transform="translate(40,110)">
     <rect width="250" height="360" rx="16" fill="#131A3B" stroke="#2A3368"/>
     <text x="20" y="34" fill="#E9ECFF" font-size="16" font-weight="700">1  Seeded physical scene</text>
-    <text x="20" y="62" fill="#A0A8D4" font-size="13">6–9 objects dropped, stacked,</text>
-    <text x="20" y="80" fill="#A0A8D4" font-size="13">settled under gravity (MuJoCo 3.16)</text>
+    <text x="20" y="60" fill="#A0A8D4" font-size="13">6–9 real scanned objects,</text>
+    <text x="20" y="77" fill="#A0A8D4" font-size="13">dropped, stacked and settled</text>
+    <text x="20" y="94" fill="#A0A8D4" font-size="13">under gravity (MuJoCo 3.16)</text>
     <g transform="translate(0,52)">
     <rect x="30" y="110" width="190" height="16" rx="3" fill="#8a6a4f"/>
     <rect x="44" y="126" width="8" height="70" fill="#3b4060"/><rect x="198" y="126" width="8" height="70" fill="#3b4060"/>
@@ -49,7 +50,8 @@
   <g transform="translate(670,110)">
     <rect width="490" height="170" rx="16" fill="#131A3B" stroke="#2A3368"/>
     <text x="20" y="34" fill="#E9ECFF" font-size="16" font-weight="700">3a  Evaluation with a perception control</text>
-    <text x="20" y="62" fill="#A0A8D4" font-size="13">Same question twice: the scene only, and the scene plus the robot's true view.</text>
+    <text x="20" y="56" fill="#A0A8D4" font-size="13">Same question twice: the scene only, and the</text>
+    <text x="20" y="73" fill="#A0A8D4" font-size="13">scene plus the robot's true view.</text>
     <rect x="20" y="82" width="120" height="66" rx="8" fill="#1C2450"/><text x="80" y="120" fill="#A0A8D4" font-size="12" text-anchor="middle">scene view</text>
     <text x="158" y="120" fill="#E9ECFF" font-size="20">+</text>
     <rect x="182" y="82" width="120" height="66" rx="8" fill="#1C2450" stroke="#5CE1E6"/><text x="242" y="120" fill="#5CE1E6" font-size="12" text-anchor="middle">robot's eyes</text>
@@ -59,7 +61,8 @@
   <g transform="translate(670,300)">
     <rect width="490" height="170" rx="16" fill="#131A3B" stroke="#2A3368"/>
     <text x="20" y="34" fill="#E9ECFF" font-size="16" font-weight="700">3b  SV-GRPO for a 1B student</text>
-    <text x="20" y="62" fill="#A0A8D4" font-size="13">Qwen3.5-0.8B + LoRA, group-relative policy optimisation; rewards come from code:</text>
+    <text x="20" y="56" fill="#A0A8D4" font-size="13">Qwen3.5-0.8B + LoRA, trained on CPU with an exact</text>
+    <text x="20" y="73" fill="#A0A8D4" font-size="13">expected-reward objective; rewards come from code:</text>
     <g font-size="12.5">
       <text x="20" y="92" fill="#E9ECFF">• answer</text><text x="130" y="92" fill="#A0A8D4">matches the simulator label</text>
       <text x="20" y="112" fill="#E9ECFF">• abstain</text><text x="130" y="112" fill="#A0A8D4">penalise claims about hidden objects</text>
